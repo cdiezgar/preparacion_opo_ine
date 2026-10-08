@@ -1,0 +1,3112 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-[#f8fafc]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A2 Estadística del Estado | Campus de Preparación</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+
+  <!-- Google Fonts: Plus Jakarta Sans, Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS con plugin Typography -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              200: '#b9dffe',
+              300: '#7cc4fd',
+              400: '#36a6fa',
+              500: '#0c87eb',
+              600: '#016bc9',
+              700: '#0255a2',
+              800: '#064885',
+              900: '#0b3c6f',
+              950: '#07274a',
+            }
+          },
+          boxShadow: {
+            'soft': '0 2px 10px -2px rgba(15, 23, 42, 0.05), 0 1px 3px -1px rgba(15, 23, 42, 0.04)',
+            'card': '0 4px 20px -4px rgba(15, 23, 42, 0.06), 0 1px 4px -1px rgba(15, 23, 42, 0.03)',
+            'floating': '0 12px 36px -6px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.04)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Marked.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- MathJax CDN para fórmulas LaTeX -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.7);
+    }
+    mjx-container {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0.35rem 0;
+    }
+    .prose-editorial {
+      color: #1e293b;
+      line-height: 1.8;
+      font-size: 0.965rem;
+    }
+    .prose-editorial h1 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .prose-editorial h2 {
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: #0f172a;
+      margin-top: 1.75rem;
+      margin-bottom: 0.85rem;
+    }
+    .prose-editorial h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 1.35rem;
+      margin-bottom: 0.5rem;
+    }
+    .prose-editorial p {
+      margin-bottom: 1.15rem;
+      color: #334155;
+    }
+    .prose-editorial ul, .prose-editorial ol {
+      padding-left: 1.35rem;
+      margin-bottom: 1.25rem;
+    }
+    .prose-editorial li {
+      margin-bottom: 0.35rem;
+      color: #334155;
+    }
+    .prose-editorial blockquote {
+      border-left: 3px solid #0c87eb;
+      background: #f0f7ff;
+      border-radius: 0 0.75rem 0.75rem 0;
+      padding: 0.85rem 1.25rem;
+      font-style: normal;
+      color: #0c4a6e;
+      margin: 1.5rem 0;
+    }
+    .prose-editorial code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.86em;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.375rem;
+      border: 1px solid #e2e8f0;
+    }
+    .prose-editorial table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1.5rem 0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .prose-editorial th {
+      background: #f8fafc;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .prose-editorial td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body class="h-full flex text-slate-800 antialiased font-sans bg-[#f8fafc] selection:bg-brand-500 selection:text-white">
+
+  <!-- ==================== SIDEBAR LATERAL ==================== -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-[#0d1527] text-slate-300 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out border-r border-slate-800/80 shadow-2xl lg:shadow-none">
+    
+    <!-- Cabecera de la Sidebar -->
+    <div class="p-4 border-b border-slate-800/80 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-cyan-500 text-white flex items-center justify-center font-extrabold text-sm shadow-md shadow-brand-500/25 ring-2 ring-white/10">
+          A2
+        </div>
+        <div>
+          <h1 class="text-sm font-bold text-white tracking-tight leading-tight flex items-center gap-1.5">
+            Estadística del Estado
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium">Campus de Oposición Oficial</p>
+        </div>
+      </div>
+      <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Buscador global -->
+    <div class="p-3 border-b border-slate-800/60 bg-slate-950/20">
+      <div class="relative">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+        <input 
+          id="global-search" 
+          type="text" 
+          placeholder="Buscar tema, fórmula o ley..." 
+          oninput="handleSearch(this.value)"
+          class="w-full bg-slate-900/90 border border-slate-800 text-xs text-slate-200 rounded-xl pl-9 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 placeholder-slate-500 transition shadow-inner"
+        />
+      </div>
+      <div id="search-results" class="hidden mt-2 max-h-60 overflow-y-auto bg-slate-900/95 border border-slate-800 rounded-xl p-1.5 divide-y divide-slate-800/70 text-xs shadow-2xl backdrop-blur-md"></div>
+    </div>
+
+    <!-- Navegación Primaria -->
+    <div class="p-3 space-y-1 border-b border-slate-800/60 text-xs font-semibold">
+      <button onclick="navigate('home')" id="nav-btn-home" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all duration-150 text-left group">
+        <div class="w-7 h-7 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center group-hover:scale-105 transition">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>
+        </div>
+        <span class="flex-1 font-medium">Temario General</span>
+        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-400">65T</span>
+      </button>
+
+      <button onclick="navigate('dashboard')" id="nav-btn-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all duration-150 text-left group">
+        <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center group-hover:scale-105 transition">
+          <i data-lucide="trending-up" class="w-4 h-4"></i>
+        </div>
+        <span class="flex-1 font-medium">Mi Progreso & Métricas</span>
+      </button>
+
+      <button onclick="navigate('test-center')" id="nav-btn-test-center" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all duration-150 text-left group">
+        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition">
+          <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+        </div>
+        <span class="flex-1 font-medium">Centro de Tests</span>
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      </button>
+    </div>
+
+    <!-- Navegación de Bloques -->
+    <div class="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+      <span>Bloques & Apuntes</span>
+      <span class="text-[10px] text-emerald-300 bg-emerald-950/70 border border-emerald-800/50 px-2 py-0.5 rounded-full font-mono">5 redactados</span>
+    </div>
+    <div class="flex-1 overflow-y-auto px-3 py-2 space-y-1.5" id="bloques-tree"></div>
+
+    <!-- Pie de la Sidebar -->
+    <div class="p-3.5 border-t border-slate-800/80 bg-slate-950/50 text-xs text-slate-400 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="text-[11px] font-medium text-slate-300">Convocatoria en vigor</span>
+      </div>
+      <span class="text-[10px] font-bold text-slate-400 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-md">BOE A2</span>
+    </div>
+  </aside>
+
+  <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+  <div class="flex-1 flex flex-col min-w-0 lg:pl-72">
+    
+    <!-- Topbar Orgánica Superior -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30 px-4 sm:px-6 py-3 flex items-center justify-between transition-all">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div id="breadcrumb-container" class="flex items-center gap-2 text-xs font-medium text-slate-500"></div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button 
+          onclick="lanzarSimulacro()" 
+          class="hidden sm:inline-flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl shadow-sm shadow-brand-500/20 transition active:scale-95"
+        >
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          <span>Simulacro Oficial (60 P)</span>
+        </button>
+        <button 
+          onclick="navigate('test-center')" 
+          class="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition" 
+          title="Abrir centro de tests"
+        >
+          <i data-lucide="check-square" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Área de Vistas Dinámicas -->
+    <main id="app-viewport" class="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto"></main>
+  </div>
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // 1. CONFIGURACIÓN SUPABASE
+    const SUPABASE_URL = 'https://vpuuucyejfursokxcrog.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_IqcZRnrfiv06zrOYklCYGw_ADDiXqTA';
+
+    let supabaseClient = null;
+    try {
+      if (
+        typeof window.supabase !== 'undefined' &&
+        SUPABASE_URL !== 'https://tu-proyecto.supabase.co' &&
+        SUPABASE_KEY !== 'tu-anon-key'
+      ) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+    } catch (e) {
+      console.warn("Supabase en modo fallback mock:", e);
+    }
+
+    // 2. TEMAS DISPONIBLES REALES EN EL REPOSITORIO
+    const TEMAS_DISPONIBLES = new Set([1, 2, 38, 39, 50]);
+    function esTemaDisponible(temaNum) {
+      return TEMAS_DISPONIBLES.has(Number(temaNum));
+    }
+
+    // 3. PROGRAMA OFICIAL COMPLETO (65 TEMAS EN 6 BLOQUES)
+    const TEMARIO = [
+      {
+        id: 1,
+        nombre: "Organización del Estado y Derecho Administrativo",
+        carpeta: "Bloque_I_Administrativo",
+        rango: "Temas 1 al 11",
+        temas: [
+          { num: 1, titulo: "La Constitución Española de 1978. Estructura y principios generales. Derechos y deberes fundamentales.", epigrafes: ["Estructura y títulos de la Constitución.", "Principios generales del Estado.", "Derechos y deberes fundamentales.", "Garantías y protección de los derechos."] },
+          { num: 2, titulo: "La Corona. Las Cortes Generales: composición, funciones y fiscalización. El Defensor del Pueblo.", epigrafes: ["La Corona y sus funciones.", "Composición del Congreso y del Senado.", "Funciones y control parlamentario.", "El Defensor del Pueblo."] },
+          { num: 3, titulo: "El Gobierno y la Administración. Presidente del Gobierno, Ministros y Secretarios de Estado.", epigrafes: ["Composición y funciones del Gobierno.", "Presidente del Gobierno.", "Ministros y departamentos ministeriales.", "Secretarios de Estado y organización administrativa."] },
+          { num: 4, titulo: "La Administración General del Estado: órganos centrales y periféricos. Delegaciones del Gobierno.", epigrafes: ["Órganos centrales de la AGE.", "Órganos superiores y directivos.", "Organización territorial y periférica.", "Delegaciones y Subdelegaciones del Gobierno."] },
+          { num: 5, titulo: "Las instituciones de la Unión Europea: Consejo, Parlamento, Comisión y TJUE. Fuentes del derecho UE.", epigrafes: ["Consejo y Consejo Europeo.", "Parlamento Europeo y Comisión.", "Tribunal de Justicia de la Unión Europea.", "Derecho originario y derivado."] },
+          { num: 6, titulo: "Las Leyes 39/2015 y 40/2015. El procedimiento administrativo común y recursos administrativos.", epigrafes: ["Ámbito de las Leyes 39/2015 y 40/2015.", "Actos y fases del procedimiento administrativo.", "Notificación y silencio administrativo.", "Recursos administrativos."] },
+          { num: 7, titulo: "Régimen de empleados públicos (TREBEP). Tipología, derechos, deberes y situaciones administrativas.", epigrafes: ["Clases de empleados públicos.", "Derechos individuales y colectivos.", "Deberes y código de conducta.", "Situaciones administrativas y régimen disciplinario."] },
+          { num: 8, titulo: "Retribuciones e incompatibilidades. Ley Orgánica 3/2007 para la igualdad efectiva de mujeres y hombres.", epigrafes: ["Retribuciones básicas y complementarias.", "Régimen de incompatibilidades.", "Igualdad de trato y oportunidades.", "Igualdad en el empleo público."] },
+          { num: 9, titulo: "El Presupuesto del Estado en España: ciclo presupuestario. El Tribunal de Cuentas.", epigrafes: ["Concepto y estructura del presupuesto.", "Elaboración y aprobación.", "Ejecución y control presupuestario.", "Funciones del Tribunal de Cuentas."] },
+          { num: 10, titulo: "Ley 12/1989 de la Función Estadística Pública. El secreto estadístico. Consejo de Empadronamiento.", epigrafes: ["Ley de la Función Estadística Pública.", "Recogida de datos y colaboración.", "Secreto estadístico y régimen de protección.", "Consejo de Empadronamiento."] },
+          { num: 11, titulo: "El Instituto Nacional de Estadística (INE): naturaleza y competencias. Código de Buenas Prácticas.", epigrafes: ["Naturaleza y competencias del INE.", "Organización y coordinación estadística.", "Principios del Código de Buenas Prácticas.", "Calidad y difusión de estadísticas oficiales."] }
+        ]
+      },
+      {
+        id: 2,
+        nombre: "Estadística Teórica y Aplicada",
+        carpeta: "Bloque_II_Estadistica",
+        rango: "Temas 12 al 37",
+        temas: [
+          { num: 12, titulo: "Distribuciones unidimensionales. Tabulación y representaciones gráficas. Medidas de posición y forma.", epigrafes: ["Variables y escalas de medida.", "Frecuencias y tabulación.", "Representaciones gráficas.", "Media, mediana, moda y cuantiles."] },
+          { num: 13, titulo: "Medidas de dispersión absoluta y relativa. Coeficientes de asimetría y curtosis.", epigrafes: ["Recorrido y rango intercuartílico.", "Varianza y desviación típica.", "Coeficiente de variación.", "Coeficientes de asimetría y curtosis."] },
+          { num: 14, titulo: "Momentos de una distribución unidimensional respecto al origen y centrales. Transformaciones lineales.", epigrafes: ["Momentos respecto al origen.", "Momentos centrales.", "Relaciones entre momentos.", "Efectos de las transformaciones lineales."] },
+          { num: 15, titulo: "Distribuciones bidimensionales. Tablas de contingencia, distribuciones marginales y condicionadas.", epigrafes: ["Tablas de doble entrada y contingencia.", "Distribuciones conjuntas.", "Distribuciones marginales.", "Distribuciones condicionadas."] },
+          { num: 16, titulo: "Momentos en distribuciones bidimensionales. Covarianza y coeficiente de correlación lineal de Pearson.", epigrafes: ["Momentos conjuntos.", "Covarianza y sus propiedades.", "Coeficiente de Pearson.", "Asociación lineal y límites de interpretación."] },
+          { num: 17, titulo: "Regresión y ajuste estadístico por Mínimos Cuadrados Ordinarios (MCO). Coeficiente de determinación.", epigrafes: ["Criterio de mínimos cuadrados.", "Rectas de regresión y coeficientes.", "Residuos y descomposición de variabilidad.", "Coeficiente de determinación."] },
+          { num: 18, titulo: "Fundamentos de probabilidad. Espacio muestral, axiomática de Kolmogorov y propiedades.", epigrafes: ["Experimentos y espacio muestral.", "Sucesos y operaciones.", "Axiomas de Kolmogorov.", "Propiedades y reglas de probabilidad."] },
+          { num: 19, titulo: "Probabilidad condicionada e independencia. Teorema de la Probabilidad Total y Teorema de Bayes.", epigrafes: ["Probabilidad condicionada.", "Independencia de sucesos.", "Teorema de la probabilidad total.", "Teorema de Bayes."] },
+          { num: 20, titulo: "Variables aleatorias unidimensionales (discretas y continuas). Esperanza, varianza y Desigualdad de Chebyshev.", epigrafes: ["Variables discretas y continuas.", "Función de distribución, masa y densidad.", "Esperanza y varianza.", "Desigualdad de Chebyshev."] },
+          { num: 21, titulo: "Variables aleatorias bidimensionales. Distribución conjunta, marginales, condicionadas y covarianza.", epigrafes: ["Distribución conjunta y soporte.", "Distribuciones marginales.", "Distribuciones condicionadas e independencia.", "Esperanzas, covarianza y correlación."] },
+          { num: 22, titulo: "Modelos discretos: Bernoulli, Binomial, Hipergeométrica y Geométrica. Funciones generatrices.", epigrafes: ["Distribución de Bernoulli y binomial.", "Distribución hipergeométrica.", "Distribución geométrica.", "Funciones generatrices y momentos."] },
+          { num: 23, titulo: "Modelos discretos adicionales: Binomial Negativa y Poisson. Proceso de Poisson.", epigrafes: ["Binomial negativa y parametrizaciones.", "Distribución de Poisson.", "Propiedades y momentos.", "Proceso de Poisson y recuentos."] },
+          { num: 24, titulo: "Modelos continuos: Uniforme, Exponencial, Gamma y Beta. Propiedades y aplicaciones.", epigrafes: ["Distribución uniforme.", "Exponencial y falta de memoria.", "Distribución gamma.", "Distribución beta."] },
+          { num: 25, titulo: "La distribución Normal. Propiedades, tipificación y Teorema Central del Límite.", epigrafes: ["Densidad y parámetros de la normal.", "Tipificación y cálculo de probabilidades.", "Propiedades de combinaciones normales.", "Teorema central del límite e hipótesis."] },
+          { num: 26, titulo: "Distribuciones muestrales en poblaciones normales: Chi-cuadrado, t de Student y F de Snedecor.", epigrafes: ["Distribución chi-cuadrado.", "Distribución t de Student.", "Distribución F de Snedecor.", "Relaciones con media y varianza muestrales."] },
+          { num: 27, titulo: "Introducción a la inferencia estadística. Muestreo aleatorio simple. Distribución muestral.", epigrafes: ["Población, muestra y parámetros.", "Muestra aleatoria y estadísticos.", "Distribuciones muestrales.", "Objetivos de estimación y contraste."] },
+          { num: 28, titulo: "Estimación puntual. Insesgadez, varianza mínima, cota de Fréchet-Cramér-Rao y suficiencia.", epigrafes: ["Insesgadez y sesgo.", "Varianza, eficiencia y error cuadrático medio.", "Cota de Fréchet-Cramér-Rao y condiciones.", "Suficiencia y consistencia."] },
+          { num: 29, titulo: "Métodos de estimación: Método de los Momentos y Máxima Verosimilitud (MMV).", epigrafes: ["Ecuaciones del método de los momentos.", "Función de verosimilitud.", "Logverosimilitud y optimización.", "Restricciones y comprobación del estimador."] },
+          { num: 30, titulo: "Intervalos de confianza. Cantidades pivotales para medias, varianzas y proporciones normales.", epigrafes: ["Nivel de confianza y cobertura.", "Cantidades pivotales.", "Intervalos para medias y varianzas normales.", "Introducción a intervalos para proporciones."] },
+          { num: 31, titulo: "Intervalos de confianza para grandes muestras en proporciones binomiales y Poisson.", epigrafes: ["Aproximación normal y error estándar.", "Intervalos para proporciones binomiales.", "Intervalos para el parámetro de Poisson.", "Condiciones y límites de la aproximación."] },
+          { num: 32, titulo: "Determinación del tamaño muestral para estimaciones puntuales e intervalares.", epigrafes: ["Precisión y margen de error.", "Tamaño para estimar una media.", "Tamaño para estimar una proporción.", "Redondeo y corrección por población finita."] },
+          { num: 33, titulo: "Contrastes de hipótesis estadísticas. Errores Tipo I y II, nivel de significación y potencia.", epigrafes: ["Hipótesis nula y alternativa.", "Región crítica y estadístico.", "Errores de tipo I y II.", "Nivel de significación y potencia."] },
+          { num: 34, titulo: "Lema de Neyman-Pearson y test de la razón de verosimilitudes. Valor p y reglas de decisión.", epigrafes: ["Lema de Neyman-Pearson.", "Contrastes de razón de verosimilitudes.", "Cálculo e interpretación del valor p.", "Reglas de decisión."] },
+          { num: 35, titulo: "Contrastes paramétricos sobre medias, varianzas y proporciones en una y dos poblaciones.", epigrafes: ["Contrastes sobre medias.", "Contrastes sobre varianzas.", "Contrastes sobre proporciones.", "Muestras independientes y apareadas."] },
+          { num: 36, titulo: "Contrastes no paramétricos. Chi-cuadrado de bondad de ajuste, Kolmogorov-Smirnov e independencia.", epigrafes: ["Chi-cuadrado de bondad de ajuste.", "Frecuencias esperadas y grados de libertad.", "Prueba de Kolmogorov-Smirnov.", "Chi-cuadrado de independencia."] },
+          { num: 37, titulo: "Series temporales y desestacionalización. Números índices (Laspeyres, Paasche y Fisher).", epigrafes: ["Tendencia, ciclo, estacionalidad e irregularidad.", "Medias móviles y desestacionalización.", "Índices de Laspeyres, Paasche y Fisher.", "Cambio de base, enlace y deflactación."] }
+        ]
+      },
+      {
+        id: 3,
+        nombre: "Economía y Cuentas Nacionales",
+        carpeta: "Bloque_III_Economia",
+        rango: "Temas 38 al 49",
+        temas: [
+          { num: 38, titulo: "Microeconomía: oferta, demanda y equilibrio de mercado. Elasticidades de precio y renta.", epigrafes: ["Funciones de oferta y demanda.", "Equilibrio y desplazamientos.", "Elasticidad precio.", "Elasticidad renta y su interpretación."] },
+          { num: 39, titulo: "Competencia perfecta e imperfecta (monopolio, oligopolio). Fijación de precios.", epigrafes: ["Competencia perfecta.", "Monopolio.", "Oligopolio y competencia imperfecta.", "Producción, costes y fijación de precios."] },
+          { num: 40, titulo: "Producto Interior Bruto (PIB): vías del gasto, producción y rentas.", epigrafes: ["Vía de la producción y valor añadido.", "Vía del gasto.", "Vía de las rentas.", "Valoración y coherencia entre las tres vías."] },
+          { num: 41, titulo: "PNB, Renta Nacional y Renta Personal Disponible. Renta real frente a nominal.", epigrafes: ["PIB y PNB y relación con la renta nacional.", "Rentas primarias con el exterior.", "Renta personal y disponible.", "Magnitudes nominales, reales y deflactación."] },
+          { num: 42, titulo: "Sistema Europeo de Cuentas Nacionales y Regionales (SEC): marco metodológico y sectores.", epigrafes: ["Unidades institucionales y residencia.", "Sectores institucionales.", "Operaciones y criterios de registro.", "Marco metodológico del SEC."] },
+          { num: 43, titulo: "Cuentas corrientes, de acumulación y balances en el marco del SEC.", epigrafes: ["Cuentas corrientes.", "Cuentas de acumulación.", "Balances de activos y pasivos.", "Saldos y capacidad o necesidad de financiación."] },
+          { num: 44, titulo: "Tablas de origen y destino. Modelo Input-Output y coeficientes técnicos.", epigrafes: ["Tablas de origen y destino.", "Consumos intermedios y demanda final.", "Coeficientes técnicos.", "Modelo e inversa de Leontief."] },
+          { num: 45, titulo: "Medición del mercado de trabajo: Encuesta de Población Activa (EPA) y paro registrado.", epigrafes: ["Ocupados, parados, activos e inactivos.", "Tasas de actividad, empleo y paro.", "Encuesta de Población Activa.", "Paro registrado y diferencias de cobertura."] },
+          { num: 46, titulo: "Inflación y medición de precios. IPC en España e IPCA en la Unión Europea.", epigrafes: ["Concepto y medición de la inflación.", "Cesta y ponderaciones del IPC.", "Tasas de variación de precios.", "IPCA y comparabilidad europea."] },
+          { num: 47, titulo: "Sector exterior: Balanza de Pagos (cuenta corriente, capital y financiera).", epigrafes: ["Residencia y operaciones con el exterior.", "Cuenta corriente.", "Cuenta de capital.", "Cuenta financiera y relaciones entre saldos."] },
+          { num: 48, titulo: "Sector público: déficit y deuda pública en el marco del Pacto de Estabilidad de la UE.", epigrafes: ["Ingresos, gastos y saldo público.", "Déficit y capacidad o necesidad de financiación.", "Deuda pública y relación con el PIB.", "Marco europeo de estabilidad fiscal."] },
+          { num: 49, titulo: "Indicadores de coyuntura económica: producción industrial, consumo e inversión.", epigrafes: ["Indicadores de producción industrial.", "Indicadores de consumo.", "Indicadores de inversión.", "Tasas y lectura de la coyuntura."] }
+        ]
+      },
+      {
+        id: 4,
+        nombre: "Demografía y Estadísticas Sociales",
+        carpeta: "Bloque_IV_Demografia",
+        rango: "Temas 50 al 57",
+        temas: [
+          { num: 50, titulo: "Fuentes demográficas: Censo de Población, Padrón Municipal y MNP.", epigrafes: ["Censos de población.", "Padrón municipal.", "Movimiento Natural de la Población.", "Comparación y usos de las fuentes."] },
+          { num: 51, titulo: "Estructura por edad y sexo. Pirámides de población e índices de envejecimiento.", epigrafes: ["Distribución por edad y sexo.", "Construcción y lectura de pirámides.", "Índices de envejecimiento y dependencia.", "Relaciones de masculinidad."] },
+          { num: 52, titulo: "Análisis transversal y longitudinal. Diagrama de Lexis, líneas de vida y cohortes.", epigrafes: ["Análisis de periodo y de cohorte.", "Ejes del diagrama de Lexis.", "Líneas de vida y generaciones.", "Clasificación de acontecimientos y exposiciones."] },
+          { num: 53, titulo: "Análisis de mortalidad: tasas brutas y específicas. Estandarización de tasas.", epigrafes: ["Tasas brutas de mortalidad.", "Tasas específicas por edad.", "Estandarización directa.", "Estandarización indirecta e interpretación."] },
+          { num: 54, titulo: "Tablas de Mortalidad o de Vida: funciones biométricas y esperanza de vida.", epigrafes: ["Supervivientes y defunciones.", "Probabilidades de muerte y supervivencia.", "Años vividos y años pendientes.", "Esperanza de vida y relaciones biométricas."] },
+          { num: 55, titulo: "Análisis de natalidad y fecundidad. Tasas de reproducción bruta y neta.", epigrafes: ["Tasas de natalidad.", "Tasas generales y específicas de fecundidad.", "Indicador sintético de fecundidad.", "Reproducción bruta y neta."] },
+          { num: 56, titulo: "Fenómenos migratorios y saldo migratorio. Estimación directa e indirecta.", epigrafes: ["Inmigración y emigración.", "Migraciones interiores y exteriores.", "Saldo y tasas migratorias.", "Estimación directa e indirecta."] },
+          { num: 57, titulo: "Crecimiento demográfico, ecuación compensadora y método de componentes.", epigrafes: ["Ecuación compensadora.", "Crecimiento natural y total.", "Tasas de crecimiento.", "Proyecciones por componentes."] }
+        ]
+      },
+      {
+        id: 5,
+        nombre: "Muestreo e Inferencia Poblacional",
+        carpeta: "Bloque_V_Muestreo",
+        rango: "Temas 58 al 61",
+        temas: [
+          { num: 58, titulo: "Fundamentos del muestreo. Marco muestral, muestreo probabilístico y errores de cobertura.", epigrafes: ["Población objetivo y unidades.", "Marco muestral y cobertura.", "Muestreo probabilístico.", "Errores de muestreo, cobertura y no respuesta."] },
+          { num: 59, titulo: "Muestreo aleatorio simple (MAS). Estimadores de media y total, varianzas y tamaño óptimo.", epigrafes: ["MAS con y sin reemplazamiento.", "Estimadores de media y total.", "Varianzas y corrección por población finita.", "Determinación del tamaño muestral."] },
+          { num: 60, titulo: "Muestreo estratificado. Afijación uniforme, proporcional y óptima (Neyman). Muestreo sistemático.", epigrafes: ["Estimación en muestreo estratificado.", "Afijación uniforme y proporcional.", "Afijación de Neyman y costes.", "Muestreo sistemático y ordenación del marco."] },
+          { num: 61, titulo: "Muestreo por conglomerados y bietápico. Estimadores de razón y de regresión.", epigrafes: ["Conglomerados y diseño bietápico.", "Probabilidades y ponderaciones.", "Estimadores de razón.", "Estimadores de regresión y precisión."] }
+        ]
+      },
+      {
+        id: 6,
+        nombre: "Informática y Sistemas Estadísticos",
+        carpeta: "Bloque_VI_Informatica",
+        rango: "Temas 62 al 65",
+        temas: [
+          { num: 62, titulo: "Arquitectura de ordenadores, sistemas operativos y redes TCP/IP.", epigrafes: ["Procesador, memoria y almacenamiento.", "Funciones del sistema operativo.", "Redes y arquitectura por capas.", "Protocolos y direccionamiento TCP/IP."] },
+          { num: 63, titulo: "Bases de datos relacionales (SGBD). Modelo Entidad-Relación y normalización (1FN, 2FN, 3FN).", epigrafes: ["Sistemas gestores y modelo relacional.", "Modelo entidad-relación.", "Claves e integridad referencial.", "Primera, segunda y tercera forma normal."] },
+          { num: 64, titulo: "Lenguaje SQL: DDL, DML, DCL. Consultas complejas, agrupaciones y uniones.", epigrafes: ["DDL, DML y DCL.", "SELECT, filtros y ordenación.", "JOIN y subconsultas.", "GROUP BY, funciones agregadas y HAVING."] },
+          { num: 65, titulo: "Seguridad informática, ENS y protección de datos (RGPD / LOPDGDD) en microdatos estadísticos.", epigrafes: ["Confidencialidad, integridad y disponibilidad.", "Esquema Nacional de Seguridad.", "Principios de RGPD y LOPDGDD.", "Anonimización y riesgo de reidentificación."] }
+        ]
+      }
+    ];
+
+    // 4. MOCK DATA PARA TESTS
+    const MOCK_PREGUNTAS = [
+      {
+        id: "mock-1",
+        bloque_id: 1,
+        tema_num: 1,
+        enunciado: "¿Cuál de las siguientes afirmaciones respecto a la reforma de la Constitución Española de 1978 es correcta según el artículo 168?",
+        opciones: [
+          "A) Exige la aprobación por mayoría de tres quintos de cada Cámara.",
+          "B) Requiere la aprobación del principio por mayoría de dos tercios de cada Cámara y la disolución inmediata de las Cortes.",
+          "C) Se aplica cuando se propone una revisión que afecte exclusivamente al Título VIII.",
+          "D) El referéndum de ratificación es potestativo para el Gobierno."
+        ],
+        correcta: 1,
+        explicacion: "El art. 168 CE regula la reforma agravada: exige aprobación del principio por 2/3 de cada Cámara, disolución inmediata, ratificación por las nuevas Cámaras, aprobación por 2/3 y referéndum preceptivo."
+      },
+      {
+        id: "mock-2",
+        bloque_id: 1,
+        tema_num: 2,
+        enunciado: "Según la Constitución Española, el Defensor del Pueblo es designado por:",
+        opciones: [
+          "A) El Gobierno mediante Real Decreto acordado en Consejo de Ministros.",
+          "B) Las Cortes Generales como alto comisionado para la defensa de los derechos del Título I.",
+          "C) El Consejo General del Poder Judicial.",
+          "D) El Tribunal Constitucional previa terna del Congreso."
+        ],
+        correcta: 1,
+        explicacion: "El art. 54 de la Constitución determina que el Defensor del Pueblo es designado por las Cortes Generales como su alto comisionado."
+      },
+      {
+        id: "mock-3",
+        bloque_id: 3,
+        tema_num: 38,
+        enunciado: "Si la elasticidad precio cruzada de la demanda entre dos bienes $X$ e $Y$ es estrictamente positiva ($e_{xy} > 0$), ambos bienes son:",
+        opciones: [
+          "A) Bienes complementarios.",
+          "B) Bienes sustitutivos.",
+          "C) Bienes inferiores.",
+          "D) Bienes de Giffen independientes."
+        ],
+        correcta: 1,
+        explicacion: "Una elasticidad cruzada positiva implica que al aumentar el precio del bien Y, la demanda del bien X se incrementa; se trata por tanto de bienes sustitutivos."
+      },
+      {
+        id: "mock-4",
+        bloque_id: 3,
+        tema_num: 39,
+        enunciado: "En un mercado de competencia perfecta a largo plazo, el equilibrio de la empresa representativa se caracteriza por producir en el punto donde:",
+        opciones: [
+          "A) El precio iguala al coste marginal y al coste medio mínimo, obteniendo beneficio económico nulo.",
+          "B) El ingreso marginal supera al coste marginal para retener rentas del monopolio.",
+          "C) El precio coincide con el ingreso total acumulado.",
+          "D) La curva de demanda es completamente vertical e inelástica."
+        ],
+        correcta: 0,
+        explicacion: "A largo plazo en competencia perfecta la libre entrada y salida de empresas conduce a $P = CMg = CMe_{min}$, disipando cualquier beneficio extraordinario."
+      },
+      {
+        id: "mock-5",
+        bloque_id: 4,
+        tema_num: 50,
+        enunciado: "¿Cuál es la diferencia jurídica y funcional fundamental entre el Censo de Población y el Padrón Municipal en España?",
+        opciones: [
+          "A) El Censo es de gestión municipal continua mientras el Padrón lo elabora exclusivamente el INE cada 10 años.",
+          "B) El Padrón Municipal es un registro administrativo continuo de competencia municipal; el Censo es una operación estadística de ámbito estatal del INE.",
+          "C) El Padrón está amparado por el secreto estadístico y el Censo tiene carácter puramente fiscal.",
+          "D) Ninguno de los dos incluye a residentes de nacionalidad extranjera."
+        ],
+        correcta: 1,
+        explicacion: "El Padrón es un registro administrativo continuo gestionado por los Ayuntamientos. El Censo es una operación estadística oficial del INE regida por el secreto estadístico."
+      }
+    ];
+
+    // Instancias de Chart.js
+    let bloquesChartInstance = null;
+    let timelineChartInstance = null;
+
+    // 5. ESTADO GLOBAL
+    let state = {
+      currentView: 'home',
+      homeFilter: 'all',
+      selectedBloqueId: 1,
+      selectedTemaNum: 1,
+      activeTest: null,
+      testTimerInterval: null,
+      metricasCargadas: false,
+      temasConPreguntas: new Map(),
+      historyFilter: 'all',
+      sesionesHistorial: [],
+      fallosIdsSupabase: [],
+      timelineFiltroBloque: 'all',
+      timelineFiltroTema: 'all',
+      metricas: {
+        totalTests: 0,
+        totalIntentos: 0,
+        aciertos: 0,
+        fallos: 0,
+        blancos: 0,
+        tiempoTotalSegundos: 0,
+        tiempoMedioPorTest: 0,
+        tiempoMedioPorPregunta: 0,
+        porBloque: [0, 0, 0, 0, 0, 0],
+        preguntasTotalesPorBloque: [0, 0, 0, 0, 0, 0],
+        aciertosPorBloque: [0, 0, 0, 0, 0, 0]
+      }
+    };
+
+    // 6. DETECCIÓN AUTOMÁTICA DE PREGUNTAS EN BANCO
+    async function detectarTemasConPreguntas() {
+      const mapa = new Map();
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('preguntas')
+            .select('tema_num');
+          if (!error && data) {
+            data.forEach(p => {
+              if (p.tema_num) {
+                mapa.set(p.tema_num, (mapa.get(p.tema_num) || 0) + 1);
+              }
+            });
+          }
+        } catch (e) {
+          console.warn("Fallo consultando preguntas:", e);
+        }
+      }
+
+      if (mapa.size === 0) {
+        MOCK_PREGUNTAS.forEach(p => {
+          mapa.set(p.tema_num, (mapa.get(p.tema_num) || 0) + 1);
+        });
+      }
+
+      state.temasConPreguntas = mapa;
+      
+      if (state.currentView === 'home') {
+        const vp = document.getElementById('app-viewport');
+        if (vp) renderHome(vp);
+      } else if (state.currentView === 'test-center') {
+        const vp = document.getElementById('app-viewport');
+        if (vp) renderTestCenter(vp);
+      }
+    }
+
+    function tieneTestTema(temaNum) {
+      return (state.temasConPreguntas.get(Number(temaNum)) || 0) > 0;
+    }
+
+    function contarPreguntasTema(temaNum) {
+      return state.temasConPreguntas.get(Number(temaNum)) || 0;
+    }
+
+    // 7. MOTOR DE CONSULTA DE PREGUNTAS
+    async function obtenerPreguntas({ temaNum = null, bloqueId = null, idsList = null, limite = 15, esSimulacro = false } = {}) {
+      if (idsList && idsList.length === 0) return [];
+
+      if (supabaseClient) {
+        try {
+          if (idsList && idsList.length > 0) {
+            const { data, error } = await supabaseClient
+              .from('preguntas')
+              .select('*')
+              .in('id', idsList)
+              .limit(limite);
+            if (error) throw error;
+            return (data || []).sort(() => Math.random() - 0.5);
+          }
+
+          let idQuery = supabaseClient.from('preguntas').select('id, bloque_id, tema_num');
+          if (temaNum) idQuery = idQuery.eq('tema_num', temaNum);
+          if (bloqueId) idQuery = idQuery.eq('bloque_id', bloqueId);
+
+          const { data: poolIds, error: poolError } = await idQuery;
+          if (poolError) throw poolError;
+
+          if (poolIds && poolIds.length > 0) {
+            let selectedIds = [];
+
+            if (esSimulacro) {
+              const porBloque = {};
+              poolIds.forEach(p => {
+                const b = p.bloque_id || 1;
+                if (!porBloque[b]) porBloque[b] = [];
+                porBloque[b].push(p.id);
+              });
+
+              const bloques = Object.keys(porBloque);
+              if (bloques.length > 1) {
+                bloques.forEach(b => porBloque[b].sort(() => Math.random() - 0.5));
+                const porcion = Math.ceil(limite / bloques.length);
+                bloques.forEach(b => {
+                  selectedIds.push(...porBloque[b].splice(0, porcion));
+                });
+
+                const restantes = poolIds
+                  .map(p => p.id)
+                  .filter(id => !selectedIds.includes(id))
+                  .sort(() => Math.random() - 0.5);
+                while (selectedIds.length < limite && restantes.length > 0) {
+                  selectedIds.push(restantes.pop());
+                }
+                selectedIds = selectedIds.slice(0, limite).sort(() => Math.random() - 0.5);
+              } else {
+                selectedIds = poolIds.map(p => p.id).sort(() => Math.random() - 0.5).slice(0, limite);
+              }
+            } else {
+              selectedIds = poolIds.map(p => p.id).sort(() => Math.random() - 0.5).slice(0, limite);
+            }
+
+            const { data: preguntasCompletas, error: fullError } = await supabaseClient
+              .from('preguntas')
+              .select('*')
+              .in('id', selectedIds);
+
+            if (fullError) throw fullError;
+            if (preguntasCompletas && preguntasCompletas.length > 0) {
+              return preguntasCompletas.sort(() => Math.random() - 0.5);
+            }
+          }
+        } catch (err) {
+          console.warn("Fallo Supabase, usando banco local:", err.message);
+        }
+      }
+
+      let filtradas = [...MOCK_PREGUNTAS];
+      if (idsList && idsList.length > 0) {
+        filtradas = filtradas.filter(p => idsList.includes(p.id));
+      } else {
+        if (temaNum) filtradas = filtradas.filter(p => p.tema_num === temaNum);
+        if (bloqueId) filtradas = filtradas.filter(p => p.bloque_id === bloqueId);
+      }
+      return filtradas.sort(() => Math.random() - 0.5).slice(0, limite);
+    }
+
+    // 8. ENRUTAMIENTO Y MIGAS DE PAN
+    function initApp() {
+      renderSidebarAccordion();
+      detectarTemasConPreguntas();
+      handleHashChange();
+      window.addEventListener('hashchange', handleHashChange);
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    }
+
+    function navigate(view, params = {}) {
+      state.currentView = view;
+      if (params.bloqueId) state.selectedBloqueId = params.bloqueId;
+      if (params.temaNum) state.selectedTemaNum = params.temaNum;
+
+      const hashParts = [view];
+      const queryParts = [];
+      if (params.bloqueId) queryParts.push(`b=${params.bloqueId}`);
+      if (params.temaNum) queryParts.push(`t=${params.temaNum}`);
+
+      window.location.hash = hashParts[0] + (queryParts.length > 0 ? `?${queryParts.join('&')}` : '');
+
+      if (window.innerWidth < 1024) {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+      }
+    }
+
+    function updateSidebarActiveButtons(view) {
+      const btns = {
+        'home': document.getElementById('nav-btn-home'),
+        'dashboard': document.getElementById('nav-btn-dashboard'),
+        'test-center': document.getElementById('nav-btn-test-center'),
+      };
+      Object.keys(btns).forEach(k => {
+        if (!btns[k]) return;
+        if (k === view) {
+          btns[k].classList.add('bg-brand-600', 'text-white', 'shadow-md', 'shadow-brand-500/20');
+          btns[k].classList.remove('text-slate-300', 'hover:bg-slate-800/80');
+        } else {
+          btns[k].classList.remove('bg-brand-600', 'text-white', 'shadow-md', 'shadow-brand-500/20');
+          btns[k].classList.add('text-slate-300', 'hover:bg-slate-800/80');
+        }
+      });
+    }
+
+    function renderBreadcrumb(view) {
+      const bc = document.getElementById('breadcrumb-container');
+      if (!bc) return;
+
+      let html = `
+        <button onclick="navigate('home')" class="hover:text-slate-900 flex items-center gap-1 transition">
+          <i data-lucide="home" class="w-3.5 h-3.5"></i>
+          <span>Campus</span>
+        </button>
+      `;
+
+      if (view === 'bloque') {
+        const b = TEMARIO.find(x => x.id === state.selectedBloqueId);
+        html += `
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-slate-900 font-semibold truncate max-w-[200px]">Bloque ${state.selectedBloqueId}: ${b ? b.nombre : ''}</span>
+        `;
+      } else if (view === 'tema') {
+        const b = TEMARIO.find(x => x.temas.some(t => t.num === state.selectedTemaNum));
+        html += `
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+          <button onclick="navigate('bloque', { bloqueId: ${b?.id || 1} })" class="hover:text-slate-900">Bloque ${b?.id || 1}</button>
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-brand-600 font-semibold">Tema ${state.selectedTemaNum}</span>
+        `;
+      } else if (view === 'dashboard') {
+        html += `
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-slate-900 font-semibold">Métricas y Progreso</span>
+        `;
+      } else if (view === 'test-center') {
+        html += `
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-slate-900 font-semibold">Centro de Evaluación</span>
+        `;
+      } else if (view === 'test-runner') {
+        html += `
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-emerald-600 font-bold flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Examen Activo</span>
+        `;
+      } else if (view === 'test-results') {
+        html += `
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-slate-900 font-semibold">Informe de Resultados</span>
+        `;
+      } else {
+        html += `
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-slate-900 font-semibold">Programa Oficial A2</span>
+        `;
+      }
+
+      bc.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function handleHashChange() {
+      const hash = window.location.hash.replace('#', '') || 'home';
+      const [view, queryString] = hash.split('?');
+      const urlParams = new URLSearchParams(queryString || '');
+
+      state.currentView = view;
+      if (urlParams.has('b')) state.selectedBloqueId = parseInt(urlParams.get('b'));
+      if (urlParams.has('t')) state.selectedTemaNum = parseInt(urlParams.get('t'));
+
+      updateSidebarActiveButtons(view);
+      renderBreadcrumb(view);
+
+      const viewport = document.getElementById('app-viewport');
+      viewport.innerHTML = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      switch (view) {
+        case 'home':
+          renderHome(viewport);
+          break;
+        case 'dashboard':
+          renderDashboard(viewport);
+          break;
+        case 'bloque':
+          renderBloqueView(viewport, state.selectedBloqueId);
+          break;
+        case 'tema':
+          renderTemaView(viewport, state.selectedTemaNum);
+          break;
+        case 'test-center':
+          renderTestCenter(viewport);
+          break;
+        case 'test-runner':
+          renderTestRunner(viewport);
+          break;
+        case 'test-results':
+          renderTestResults(viewport);
+          break;
+        default:
+          renderHome(viewport);
+      }
+      lucide.createIcons();
+    }
+
+    // 9. SIDEBAR ACCORDION & BUSCADOR GLOBAL
+    function renderSidebarAccordion() {
+      const container = document.getElementById('bloques-tree');
+      container.innerHTML = TEMARIO.map(bloque => {
+        const disponiblesBloque = bloque.temas.filter(t => esTemaDisponible(t.num));
+        const tieneDisponibles = disponiblesBloque.length > 0;
+
+        return `
+          <div class="rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 transition">
+            <button 
+              onclick="toggleAccordion('acc-${bloque.id}')"
+              class="w-full flex items-center justify-between p-2.5 text-left text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition"
+            >
+              <div class="flex items-center gap-2 truncate pr-1">
+                <span class="w-1.5 h-1.5 rounded-full ${tieneDisponibles ? 'bg-emerald-400 ring-2 ring-emerald-500/20' : 'bg-slate-600'}"></span>
+                <span class="truncate">${bloque.nombre}</span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                ${tieneDisponibles ? `<span class="text-[10px] font-mono px-1.5 py-0.2 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">${disponiblesBloque.length}</span>` : ''}
+                <i data-lucide="chevron-down" id="icon-acc-${bloque.id}" class="w-3.5 h-3.5 text-slate-400 transform transition-transform"></i>
+              </div>
+            </button>
+            <div id="acc-${bloque.id}" class="hidden p-1 space-y-0.5 bg-slate-950/80 border-t border-slate-800/80">
+              <button onclick="navigate('bloque', { bloqueId: ${bloque.id} })" class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-brand-400 hover:bg-slate-800/80 font-medium flex items-center justify-between transition">
+                <span>Resumen del Bloque</span>
+                <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              </button>
+              ${disponiblesBloque.map(tema => `
+                <button 
+                  onclick="navigate('tema', { temaNum: ${tema.num}, bloqueId:${bloque.id} })"
+                  class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-slate-300 hover:text-white hover:bg-slate-800/80 truncate block transition"
+                  title="Tema ${tema.num}: ${tema.titulo}"
+                >
+                  <span class="font-mono text-emerald-400 font-bold mr-1.5">T${tema.num}</span>${tema.titulo}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function toggleAccordion(id) {
+      const el = document.getElementById(id);
+      const icon = document.getElementById(`icon-${id}`);
+      el.classList.toggle('hidden');
+      if (icon) icon.classList.toggle('rotate-180');
+    }
+
+    function handleSearch(query) {
+      const resultsContainer = document.getElementById('search-results');
+      if (!query || query.trim().length < 2) {
+        resultsContainer.classList.add('hidden');
+        return;
+      }
+      
+      const q = query.toLowerCase();
+      let matches = [];
+
+      TEMARIO.forEach(b => {
+        b.temas.forEach(t => {
+          const matchTitle = t.titulo.toLowerCase().includes(q);
+          const matchNum = t.num.toString() === q.replace('tema', '').trim();
+          const matchEpigrafe = t.epigrafes.some(e => e.toLowerCase().includes(q));
+          
+          if (matchTitle || matchNum || matchEpigrafe) {
+            matches.push({ bloque: b, tema: t, disponible: esTemaDisponible(t.num) });
+          }
+        });
+      });
+
+      if (matches.length === 0) {
+        resultsContainer.innerHTML = `<div class="p-3 text-slate-400 text-xs text-center">No se encontraron temas coincidentes</div>`;
+      } else {
+        resultsContainer.innerHTML = matches.slice(0, 5).map(m => `
+          <button 
+            onclick="${m.disponible ? `navigate('tema', { temaNum: ${m.tema.num}, bloqueId: ${m.bloque.id} });` : `navigate('bloque', { bloqueId: ${m.bloque.id} });`} document.getElementById('search-results').classList.add('hidden');"
+            class="w-full text-left p-2.5 hover:bg-slate-800/90 rounded-lg transition block"
+          >
+            <div class="flex items-center justify-between gap-1 mb-0.5">
+              <span class="font-semibold text-slate-200 text-xs truncate">T${m.tema.num}: ${m.tema.titulo}</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md ${m.disponible ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-slate-800 text-slate-400'}">
+                ${m.disponible ? 'Disponible' : 'Próximamente'}
+              </span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate">${m.bloque.nombre}</div>
+          </button>
+        `).join('');
+      }
+      resultsContainer.classList.remove('hidden');
+    }
+
+    // 10. VISTA: HOME / TEMARIO GENERAL
+    function setHomeFilter(f) {
+      state.homeFilter = f;
+      renderHome(document.getElementById('app-viewport'));
+    }
+
+    function renderHome(container) {
+      const totalTemas = 65;
+      const temasListos = TEMAS_DISPONIBLES.size;
+      const pctListo = Math.round((temasListos / totalTemas) * 100);
+
+      let temasConTestCount = 0;
+      TEMARIO.forEach(b => {
+        b.temas.forEach(t => {
+          if (tieneTestTema(t.num)) temasConTestCount++;
+        });
+      });
+
+      container.innerHTML = `
+        <div class="space-y-8 animate-fadeIn">
+          
+          <!-- Bento Hero Card -->
+          <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c1831] via-[#102447] to-[#0a1426] border border-slate-800/80 p-6 sm:p-8 text-white shadow-card">
+            <div class="absolute -right-16 -top-16 w-80 h-80 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute left-1/3 -bottom-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+              <div class="lg:col-span-2 space-y-3">
+                <div class="inline-flex items-center gap-2 bg-brand-500/20 text-brand-300 border border-brand-500/30 px-3 py-1 rounded-full text-xs font-semibold tracking-wide">
+                  <i data-lucide="award" class="w-3.5 h-3.5 text-brand-400"></i>
+                  <span>Subgrupo A2 • Diplomados en Estadística del Estado</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
+                  Tu espacio de estudio, apuntes y simulación de examen
+                </h1>
+                <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl">
+                  Accede a los 6 bloques oficiales, consulta teoría con fórmulas en LaTeX y entrena con simulacros oficiales y estadísticas de rendimiento en tiempo real.
+                </p>
+
+                <div class="pt-2 flex flex-wrap gap-2.5">
+                  <button 
+                    onclick="lanzarSimulacro()" 
+                    class="inline-flex items-center gap-2 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-brand-500/25 transition active:scale-95"
+                  >
+                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                    <span>Simulacro Oficial (60 P)</span>
+                  </button>
+                  <button 
+                    onclick="navigate('test-center')" 
+                    class="inline-flex items-center gap-2 bg-emerald-600/90 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition active:scale-95"
+                  >
+                    <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+                    <span>Centro de Tests</span>
+                  </button>
+                  <button 
+                    onclick="navigate('dashboard')" 
+                    class="inline-flex items-center gap-2 bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition"
+                  >
+                    <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-indigo-400"></i>
+                    <span>Ver Métricas & Historial</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tarjeta de progreso visual en el Hero -->
+              <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 backdrop-blur-md space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-slate-300">Cobertura del Temario</span>
+                  <span class="text-xs font-bold font-mono text-emerald-400">${temasListos} / ${totalTemas} temas</span>
+                </div>
+                
+                <div class="space-y-1.5">
+                  <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden p-0.5">
+                    <div class="bg-gradient-to-r from-brand-500 via-cyan-400 to-emerald-400 h-1.5 rounded-full transition-all duration-700 shadow-sm" style="width: ${pctListo}%"></div>
+                  </div>
+                  <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                    <span>${pctListo}% redactado</span>
+                    <span class="text-indigo-300">${temasConTestCount} temas con test activo</span>
+                  </div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-800/70 grid grid-cols-2 gap-2 text-center text-xs">
+                  <div class="p-2 rounded-xl bg-slate-800/50">
+                    <span class="block text-slate-400 text-[10px]">Total Bloques</span>
+                    <span class="font-bold text-white text-sm">6 Bloques</span>
+                  </div>
+                  <div class="p-2 rounded-xl bg-slate-800/50">
+                    <span class="block text-slate-400 text-[10px]">Baremo Fallos</span>
+                    <span class="font-bold text-rose-400 text-sm">-0,33 pts</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de Filtros -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-soft">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:inline">Mostrar:</span>
+              <div class="inline-flex p-1 bg-slate-100 rounded-xl text-xs font-semibold gap-1">
+                <button 
+                  onclick="setHomeFilter('all')" 
+                  class="px-3 py-1.5 rounded-lg transition-all ${state.homeFilter === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}"
+                >
+                  Todos (${totalTemas})
+                </button>
+                <button 
+                  onclick="setHomeFilter('available')" 
+                  class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${state.homeFilter === 'available' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Disponibles (${temasListos})
+                </button>
+                <button 
+                  onclick="setHomeFilter('tests')" 
+                  class="px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${state.homeFilter === 'tests' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-900'}"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                  Con Test (${temasConTestCount})
+                </button>
+              </div>
+            </div>
+
+            <!-- Accesos directos a bloques -->
+            <div class="flex items-center gap-1.5 text-xs overflow-x-auto pb-1 md:pb-0">
+              <span class="text-slate-400 font-medium text-[11px] shrink-0">Saltar a:</span>
+              ${TEMARIO.map(b => `
+                <a 
+                  href="#bloque-section-${b.id}" 
+                  class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 rounded-lg border border-slate-200/80 text-[11px] font-semibold whitespace-nowrap transition"
+                >
+                  B${b.id}
+                </a>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Listado de Bloques -->
+          <div class="space-y-10">
+            ${TEMARIO.map(bloque => {
+              let temasVisibles = bloque.temas;
+              if (state.homeFilter === 'available') {
+                temasVisibles = bloque.temas.filter(t => esTemaDisponible(t.num));
+              } else if (state.homeFilter === 'tests') {
+                temasVisibles = bloque.temas.filter(t => tieneTestTema(t.num));
+              }
+
+              const disponiblesEnBloque = bloque.temas.filter(t => esTemaDisponible(t.num)).length;
+              if (temasVisibles.length === 0) return '';
+
+              return `
+                <section id="bloque-section-${bloque.id}" class="scroll-mt-24 space-y-4">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-3">
+                    <div class="space-y-0.5">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 border border-brand-200/70">
+                          Bloque ${bloque.id} • ${bloque.rango}
+                        </span>
+                        <span class="text-xs font-semibold text-slate-400">
+                          (${disponiblesEnBloque} de ${bloque.temas.length} redactados)
+                        </span>
+                      </div>
+                      <h2 class="text-lg font-bold text-slate-900 tracking-tight">${bloque.nombre}</h2>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                      <button 
+                        onclick="navigate('bloque', { bloqueId: ${bloque.id} })" 
+                        class="text-xs font-semibold text-slate-600 hover:text-brand-600 transition inline-flex items-center gap-1 p-1.5"
+                      >
+                        Ver Bloque <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button 
+                        onclick="lanzarTestBloque(${bloque.id})"
+                        class="text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5 transition active:scale-95 shadow-sm"
+                      >
+                        <i data-lucide="play" class="w-3 h-3 fill-current"></i> Test Bloque (30 P)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${temasVisibles.map(tema => {
+                      const disponible = esTemaDisponible(tema.num);
+                      const tieneTest = tieneTestTema(tema.num);
+                      const numP = contarPreguntasTema(tema.num);
+
+                      if (disponible) {
+                        return `
+                          <div class="group bg-white p-5 rounded-2xl border border-slate-200/90 shadow-soft hover:shadow-card hover:border-brand-500/40 transition-all duration-200 flex flex-col justify-between">
+                            <div class="space-y-2.5">
+                              <div class="flex items-center justify-between">
+                                <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/80 flex items-center gap-1.5">
+                                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                  Tema ${tema.num}
+                                </span>
+                                <div>
+                                  ${tieneTest ? `
+                                    <span class="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/70 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                                      <i data-lucide="check-circle" class="w-3 h-3"></i> Test (${numP} P)
+                                    </span>
+                                  ` : `
+                                    <span class="text-[11px] font-medium text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                                      <i data-lucide="book-open" class="w-3 h-3"></i> Solo apuntes
+                                    </span>
+                                  `}
+                                </div>
+                              </div>
+
+                              <h3 
+                                onclick="navigate('tema', { temaNum: ${tema.num}, bloqueId:${bloque.id} })"
+                                class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-600 transition cursor-pointer"
+                              >
+                                ${tema.titulo}
+                              </h3>
+
+                              <div class="space-y-1">
+                                ${tema.epigrafes.slice(0, 2).map(e => `
+                                  <div class="flex items-start gap-1.5 text-xs text-slate-500">
+                                    <span class="text-brand-500 font-bold">•</span>
+                                    <span class="truncate">${e}</span>
+                                  </div>
+                                `).join('')}
+                                ${tema.epigrafes.length > 2 ? `
+                                  <p class="text-[11px] text-slate-400 italic pt-0.5">+${tema.epigrafes.length - 2} epígrafes adicionales</p>
+                                ` : ''}
+                              </div>
+                            </div>
+
+                            <div class="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                              <button 
+                                onclick="navigate('tema', { temaNum: ${tema.num}, bloqueId:${bloque.id} })"
+                                class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-brand-600 transition"
+                              >
+                                <i data-lucide="book-open" class="w-3.5 h-3.5 text-slate-400"></i> Leer Apuntes
+                              </button>
+
+                              ${tieneTest ? `
+                                <button 
+                                  onclick="lanzarTestTema(${tema.num})"
+                                  class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition active:scale-95"
+                                >
+                                  <i data-lucide="play" class="w-3 h-3 fill-current"></i> Test (15 P)
+                                </button>
+                              ` : `
+                                <span class="text-[11px] text-slate-400 italic">Test en elaboración</span>
+                              `}
+                            </div>
+                          </div>
+                        `;
+                      } else {
+                        return `
+                          <div class="bg-slate-50/70 p-5 rounded-2xl border border-dashed border-slate-200/90 text-slate-400 flex flex-col justify-between">
+                            <div class="space-y-2">
+                              <div class="flex items-center justify-between">
+                                <span class="font-mono text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-slate-200/70 text-slate-600">
+                                  Tema ${tema.num}
+                                </span>
+                                <span class="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                  <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> En preparación
+                                </span>
+                              </div>
+                              <h3 class="font-medium text-slate-600 text-sm leading-snug">
+                                ${tema.titulo}
+                              </h3>
+                              <p class="text-xs text-slate-400 line-clamp-1">
+                                ${tema.epigrafes[0] || 'Epígrafes oficiales del programa'}
+                              </p>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-slate-200/50 flex items-center justify-between text-[11px] text-slate-400">
+                              <span>Próximamente disponible</span>
+                              <span class="italic text-[10px]">No habilitado</span>
+                            </div>
+                          </div>
+                        `;
+                      }
+                    }).join('')}
+                  </div>
+                </section>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // 11. VISTA: LECTOR EDITORIAL DE APUNTES
+    function renderTemaView(container, temaNum) {
+      if (!esTemaDisponible(temaNum)) {
+        container.innerHTML = `
+          <div class="max-w-md mx-auto my-12 bg-white p-8 rounded-3xl border border-slate-200 shadow-soft text-center space-y-3">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">
+              <i data-lucide="lock" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900">Tema en fase de redacción</h3>
+            <p class="text-xs text-slate-500">Los apuntes y preguntas oficiales para el Tema ${temaNum} se incorporarán en la próxima actualización.</p>
+            <button onclick="navigate('home')" class="mt-2 bg-brand-600 text-white text-xs px-4 py-2 rounded-xl font-semibold shadow-sm">
+              Volver al Temario
+            </button>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      let bloque = TEMARIO.find(b => b.temas.some(t => t.num === temaNum));
+      let tema = bloque ? bloque.temas.find(t => t.num === temaNum) : null;
+      const tieneTest = tieneTestTema(temaNum);
+      const totalP = contarPreguntasTema(temaNum);
+
+      container.innerHTML = `
+        <div class="max-w-4xl mx-auto space-y-6">
+          <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/90 shadow-soft space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 border border-brand-200">
+                    Bloque ${bloque.id} • Tema ${tema.num}
+                  </span>
+                  <span class="text-xs text-slate-500">• Programa Oficial BOE</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug tracking-tight">
+                  ${tema.titulo}
+                </h1>
+              </div>
+
+              <div class="shrink-0 flex items-center gap-2">
+                ${tieneTest ? `
+                  <button 
+                    onclick="lanzarTestTema(${tema.num})"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-md shadow-emerald-500/20 transition active:scale-95"
+                  >
+                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                    <span>Hacer Test (${Math.min(15, totalP)} P)</span>
+                  </button>
+                ` : `
+                  <span class="inline-flex items-center gap-1.5 text-xs text-slate-500 bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl font-medium">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i> Test en elaboración
+                  </span>
+                `}
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2">Epígrafes abordados:</span>
+              <div class="flex flex-wrap gap-1.5">
+                ${tema.epigrafes.map(e => `
+                  <span class="bg-slate-50 border border-slate-200/80 text-slate-700 text-[11px] px-2.5 py-1 rounded-lg font-medium">
+                    ${e}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-3xl border border-slate-200/90 shadow-soft overflow-hidden">
+            <div class="p-6 sm:p-10">
+              <div id="visor-tema" class="prose-editorial max-w-none">
+                <div class="flex items-center justify-center p-12 text-slate-400 gap-3">
+                  <div class="animate-spin rounded-full h-5 w-5 border-2 border-brand-600 border-t-transparent"></div>
+                  <span class="text-xs font-medium">Cargando apuntes oficiales y fórmulas LaTeX...</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50/80 px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="text-xs text-slate-500 font-medium">
+                ¿Has repasado este tema? Evalúa tus conceptos antes de avanzar.
+              </div>
+              <div>
+                ${tieneTest ? `
+                  <button 
+                    onclick="lanzarTestTema(${tema.num})"
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm transition active:scale-95"
+                  >
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                    <span>Evaluar Tema ${tema.num} (15 P)</span>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      cargarArchivoMarkdown(bloque.carpeta, tema.num);
+      lucide.createIcons();
+    }
+
+    async function cargarArchivoMarkdown(carpeta, temaNum) {
+      const visor = document.getElementById('visor-tema');
+      const rutas = [
+        `${carpeta}/Tema_${temaNum}.md`,
+        `${carpeta}/tema_${temaNum}.md`
+      ];
+
+      for (const ruta of rutas) {
+        try {
+          const res = await fetch(ruta);
+          if (res.ok) {
+            const markdown = await res.text();
+            visor.innerHTML = marked.parse(markdown);
+            if (window.MathJax && window.MathJax.typesetPromise) {
+              window.MathJax.typesetPromise([visor]);
+            }
+            return;
+          }
+        } catch (e) {}
+      }
+
+      visor.innerHTML = `
+        <div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center space-y-3">
+          <div class="mx-auto w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 shadow-sm border border-slate-200">
+            <i data-lucide="file-text" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">Apuntes pendientes de incorporación física</h3>
+          <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+            Puedes incorporar el archivo <code>${carpeta}/Tema_${temaNum}.md</code> en tu proyecto para leer los apuntes o practicar directamente con los tests.
+          </p>
+          <button 
+            onclick="lanzarTestTema(${temaNum})"
+            class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm"
+          >
+            <i data-lucide="play" class="w-3.5 h-3.5"></i> Practicar Test de Tema ${temaNum}
+          </button>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // 12. VISTA: DETALLE DE BLOQUE
+    function renderBloqueView(container, bloqueId) {
+      const bloque = TEMARIO.find(b => b.id === bloqueId) || TEMARIO[0];
+      const temasDisponibles = bloque.temas.filter(t => esTemaDisponible(t.num));
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-soft flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-brand-600 uppercase tracking-wider">${bloque.rango}</span>
+                <span class="text-xs text-emerald-600 font-semibold">• ${temasDisponibles.length} de ${bloque.temas.length} activos</span>
+              </div>
+              <h2 class="text-xl font-bold text-slate-900">${bloque.nombre}</h2>
+              <p class="text-xs text-slate-500">${bloque.temas.length} temas oficiales según convocatoria BOE</p>
+            </div>
+            <button 
+              onclick="lanzarTestBloque(${bloque.id})"
+              class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white px-5 py-2.5 rounded-2xl font-semibold text-xs shadow-md shadow-brand-500/20 transition active:scale-95"
+            >
+              <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Test del Bloque (30 P)
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${bloque.temas.map(tema => {
+              const disponible = esTemaDisponible(tema.num);
+              const tieneTest = tieneTestTema(tema.num);
+
+              if (disponible) {
+                return `
+                  <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-soft hover:shadow-card hover:border-brand-400 transition flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-[11px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                          Tema ${tema.num}
+                        </span>
+                        ${tieneTest ? `
+                          <button onclick="lanzarTestTema(${tema.num})" class="text-xs text-brand-600 hover:underline flex items-center gap-1 font-semibold">
+                            <i data-lucide="play" class="w-3 h-3"></i> Test
+                          </button>
+                        ` : ''}
+                      </div>
+                      <h3 class="font-bold text-slate-900 text-xs sm:text-sm mb-2 leading-snug">${tema.titulo}</h3>
+                      <ul class="text-[11px] text-slate-500 space-y-1 mb-3">
+                        ${tema.epigrafes.map(e => `<li class="flex items-start gap-1"><span class="text-brand-500">•</span> ${e}</li>`).join('')}
+                      </ul>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <button 
+                        onclick="navigate('tema', { temaNum: ${tema.num}, bloqueId:${bloque.id} })"
+                        class="text-xs font-semibold text-slate-700 hover:text-brand-600 flex items-center gap-1"
+                      >
+                        Ver Apuntes y Fórmulas <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+                `;
+              } else {
+                return `
+                  <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-200/80 opacity-70 flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-[11px] font-mono font-semibold bg-slate-200/70 text-slate-600 px-2 py-0.5 rounded-md flex items-center gap-1">
+                          <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> Tema ${tema.num}
+                        </span>
+                        <span class="text-[10px] font-medium text-slate-500 bg-slate-200/60 px-2 py-0.5 rounded-md">Próximamente</span>
+                      </div>
+                      <h3 class="font-medium text-slate-600 text-xs mb-2 leading-snug">${tema.titulo}</h3>
+                      <p class="text-[11px] text-slate-400">${tema.epigrafes[0] || ''}</p>
+                    </div>
+                    <div class="pt-2.5 border-t border-slate-200/60 text-[11px] text-slate-400 italic">
+                      En fase de preparación
+                    </div>
+                  </div>
+                `;
+              }
+            }).join('')}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // 13. VISTA: CENTRO DE TESTS
+    function renderTestCenter(container) {
+      const temasDisponibles = TEMARIO.flatMap(b => b.temas).filter(t => esTemaDisponible(t.num));
+      const fallosCount = state.fallosIdsSupabase.length;
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/90 shadow-soft">
+            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Centro de Evaluación Oficial</h2>
+            <p class="text-xs text-slate-500 mt-1">Elige la modalidad que prefieras: test específico de tema, test por bloque o simulación global con penalización oficial (1/3).</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Simulacro Oficial General -->
+            <div class="bg-gradient-to-br from-indigo-900 via-brand-950 to-slate-900 p-6 rounded-3xl text-white shadow-card flex flex-col justify-between relative overflow-hidden">
+              <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-brand-500/20 rounded-full blur-2xl"></div>
+              <div class="space-y-2 relative z-10">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brand-500/30 text-brand-300 border border-brand-500/40">
+                  Simulación Oficial
+                </span>
+                <h3 class="text-lg font-bold text-white">Simulacro General (60 Preguntas)</h3>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  Batería ponderada equilibradamente entre todos los bloques con cronómetro y penalización oficial de 0,33 puntos por fallo.
+                </p>
+              </div>
+              <div class="pt-5 relative z-10">
+                <button 
+                  onclick="lanzarSimulacro()" 
+                  class="w-full bg-brand-500 hover:bg-brand-600 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-lg shadow-brand-500/25 transition active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Iniciar Simulacro Oficial (60 P)
+                </button>
+              </div>
+            </div>
+
+            <!-- Bolsa de Fallos -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-soft flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                    Repaso Dirigido (Supabase)
+                  </span>
+                  <span class="text-xs font-bold font-mono px-2 py-0.5 rounded-md ${fallosCount > 0 ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-500'}">
+                    ${fallosCount} pendientes
+                  </span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900">Bolsa de Fallos Acumulados</h3>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                  Calculada en tiempo real desde la tabla <code>intentos</code> de Supabase según el estado de tu última respuesta por pregunta.
+                </p>
+              </div>
+              <div class="pt-5">
+                <button 
+                  onclick="lanzarTestFallos()" 
+                  ${fallosCount === 0 ? 'disabled class="w-full bg-slate-100 text-slate-400 py-2.5 px-4 rounded-xl text-xs font-semibold cursor-not-allowed border border-slate-200"' : 'class="w-full bg-rose-600 hover:bg-rose-700 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-sm transition active:scale-95"'}
+                >
+                  ${fallosCount === 0 ? 'No tienes fallos pendientes' : `Repasar ${fallosCount} Preguntas Falladas`}
+                </button>
+              </div>
+            </div>
+
+            <!-- Test por Tema -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-soft flex flex-col justify-between space-y-4">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <h3 class="text-sm font-bold text-slate-900">Test Específico por Tema</h3>
+                  <span class="text-[10px] font-bold text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-md font-mono">15 preguntas</span>
+                </div>
+                <p class="text-xs text-slate-500">Selecciona el tema activo que deseas evaluar:</p>
+              </div>
+
+              <div class="space-y-2">
+                <select id="select-tema-test" class="w-full text-xs border border-slate-200 bg-slate-50/70 rounded-xl px-3 py-2.5 font-medium focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none">
+                  ${temasDisponibles.map(t => {
+                    const numP = contarPreguntasTema(t.num);
+                    return `<option value="${t.num}">Tema ${t.num}: ${t.titulo.substring(0, 42)}... (${numP} P)</option>`;
+                  }).join('')}
+                </select>
+                <button 
+                  onclick="lanzarTestTema(parseInt(document.getElementById('select-tema-test').value))" 
+                  class="w-full bg-brand-600 hover:bg-brand-700 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Iniciar Test del Tema
+                </button>
+              </div>
+            </div>
+
+            <!-- Test por Bloque -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-soft flex flex-col justify-between space-y-4">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <h3 class="text-sm font-bold text-slate-900">Test por Bloque Completo</h3>
+                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md font-mono">30 preguntas</span>
+                </div>
+                <p class="text-xs text-slate-500">Evalúa la materia transversal de un bloque entero:</p>
+              </div>
+
+              <div class="space-y-2">
+                <select id="select-bloque-test" class="w-full text-xs border border-slate-200 bg-slate-50/70 rounded-xl px-3 py-2.5 font-medium focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none">
+                  ${TEMARIO.map(b => `<option value="${b.id}">Bloque ${b.id}: ${b.nombre}</option>`).join('')}
+                </select>
+                <button 
+                  onclick="lanzarTestBloque(parseInt(document.getElementById('select-bloque-test').value))" 
+                  class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5"
+                >
+                  <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Iniciar Test del Bloque
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // 14. DISPARADORES ASÍNCRONOS
+    function mostrarCargandoTest() {
+      const viewport = document.getElementById('app-viewport');
+      viewport.innerHTML = `
+        <div class="max-w-md mx-auto my-16 bg-white p-8 rounded-3xl border border-slate-200/90 shadow-card text-center space-y-4">
+          <div class="w-12 h-12 border-3 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <h3 class="text-sm font-bold text-slate-900">Preparando examen oficial...</h3>
+          <p class="text-xs text-slate-500">Conectando con el banco de preguntas, barajando opciones y configurando el cronómetro.</p>
+        </div>
+      `;
+    }
+
+    async function lanzarTestTema(temaNum) {
+      if (!esTemaDisponible(temaNum)) return;
+      mostrarCargandoTest();
+      const preguntas = await obtenerPreguntas({ temaNum, limite: 15 });
+      startTestEngine('tema', preguntas, { temaNum });
+    }
+
+    async function lanzarTestBloque(bloqueId) {
+      mostrarCargandoTest();
+      const preguntas = await obtenerPreguntas({ bloqueId, limite: 30 });
+      startTestEngine('bloque', preguntas, { bloqueId });
+    }
+
+    async function lanzarTestFallos() {
+      mostrarCargandoTest();
+      const idsFallados = await obtenerIdsFallosDesdeSupabase();
+      
+      if (idsFallados.length === 0) {
+        startTestEngine('fallos', [], { esFallos: true });
+        return;
+      }
+
+      const preguntas = await obtenerPreguntas({ idsList: idsFallados, limite: 20 });
+      startTestEngine('fallos', preguntas, { esFallos: true });
+    }
+
+    async function lanzarSimulacro() {
+      mostrarCargandoTest();
+      const preguntas = await obtenerPreguntas({ limite: 60, esSimulacro: true });
+      startTestEngine('simulacro', preguntas);
+    }
+
+    function startTestEngine(tipo, preguntas, meta = {}) {
+      if (state.testTimerInterval) clearInterval(state.testTimerInterval);
+
+      state.activeTest = {
+        tipo,
+        meta,
+        preguntas: preguntas || [],
+        indiceActual: 0,
+        respuestas: {},
+        segundos: 0,
+        finalizado: false
+      };
+
+      navigate('test-runner');
+
+      if (!preguntas || preguntas.length === 0) return;
+
+      state.testTimerInterval = setInterval(() => {
+        if (state.activeTest && !state.activeTest.finalizado) {
+          state.activeTest.segundos++;
+          const timerEl = document.getElementById('test-timer-display');
+          if (timerEl) {
+            const m = Math.floor(state.activeTest.segundos / 60);
+            const s = state.activeTest.segundos % 60;
+            timerEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+          }
+        }
+      }, 1000);
+    }
+
+    // 15. INTERFAZ DE EXAMEN (TEST RUNNER)
+    function renderTestRunner(container) {
+      const t = state.activeTest;
+
+      if (!t || !t.preguntas || t.preguntas.length === 0) {
+        const esTema = t?.tipo === 'tema' && t?.meta?.temaNum;
+        const esFallos = t?.tipo === 'fallos';
+        
+        let subtitulo = `No se encontraron preguntas en el banco de datos.`;
+        if (esFallos) {
+          subtitulo = `¡Excelente! No tienes preguntas pendientes en tu bolsa de fallos.`;
+        } else if (esTema) {
+          subtitulo = `Aún no se han incorporado preguntas tipo test para el <strong>Tema ${t.meta.temaNum}</strong>.`;
+        }
+
+        container.innerHTML = `
+          <div class="max-w-md mx-auto my-12 bg-white p-8 rounded-3xl border border-slate-200 shadow-soft text-center space-y-3">
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">
+              <i data-lucide="help-circle" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900">Sin preguntas disponibles</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">${subtitulo}</p>
+            <div class="pt-2 flex justify-center gap-2">
+              <button onclick="navigate('test-center')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold">
+                Centro de Tests
+              </button>
+              <button onclick="navigate('home')" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold">
+                Ir al Inicio
+              </button>
+            </div>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      const p = t.preguntas[t.indiceActual];
+      const seleccionada = t.respuestas[t.indiceActual];
+      const pctProgreso = Math.round(((t.indiceActual + 1) / t.preguntas.length) * 100);
+
+      container.innerHTML = `
+        <div class="max-w-2xl mx-auto space-y-4">
+          
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-soft space-y-3">
+            <div class="flex items-center justify-between text-xs font-semibold">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-700 font-mono font-bold">
+                  Pregunta ${t.indiceActual + 1} de ${t.preguntas.length}
+                </span>
+                <span class="text-slate-400 text-[11px] hidden sm:inline">
+                  ${t.tipo === 'simulacro' ? 'Simulacro Oficial (60 P)' : t.tipo === 'fallos' ? 'Bolsa de Fallos' : `Test Oficial`}
+                </span>
+              </div>
+              <div class="flex items-center gap-2 font-mono font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-xl">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-500"></i>
+                <span id="test-timer-display">${formatearTiempo(t.segundos)}</span>
+              </div>
+            </div>
+
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-gradient-to-r from-brand-500 to-emerald-500 h-1.5 rounded-full transition-all duration-300" style="width: ${pctProgreso}%"></div>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-soft space-y-5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-mono text-brand-700 font-semibold bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200">
+                Bloque ${p.bloque_id || '—'} • Tema ${p.tema_num || '—'}
+              </span>
+              ${seleccionada !== undefined ? `
+                <span class="text-emerald-700 font-semibold flex items-center gap-1 text-[11px]">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> Contestada
+                </span>
+              ` : `
+                <span class="text-amber-600 font-medium text-[11px]">Sin responder</span>
+              `}
+            </div>
+
+            <h3 class="text-sm sm:text-base font-semibold text-slate-900 leading-relaxed">
+              ${p.enunciado}
+            </h3>
+
+            <div class="space-y-2.5 pt-1">
+              ${p.opciones.map((opc, idx) => `
+                <button 
+                  onclick="seleccionarOpcion(${idx})"
+                  class="w-full text-left p-3.5 sm:p-4 rounded-2xl border text-xs sm:text-sm font-medium transition-all flex items-start gap-3.5 ${
+                    seleccionada === idx 
+                      ? 'border-brand-600 bg-brand-50/90 text-brand-950 ring-2 ring-brand-500/20 shadow-sm' 
+                      : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700'
+                  }"
+                >
+                  <span class="w-6 h-6 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 transition ${
+                    seleccionada === idx ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600 border border-slate-200'
+                  }">
+                    ${['A', 'B', 'C', 'D'][idx]}
+                  </span>
+                  <span class="mt-0.5 leading-relaxed">${opc.replace(/^[A-D]\)\s*/, '')}</span>
+                </button>
+              `).join('')}
+            </div>
+
+            <div class="pt-2 flex justify-end">
+              <button onclick="dejarEnBlanco()" class="text-xs text-slate-400 hover:text-slate-600 underline font-medium transition">
+                Dejar en blanco
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <button 
+              onclick="cambiarPregunta(${t.indiceActual - 1})"
+              ${t.indiceActual === 0 ? 'disabled class="opacity-30 cursor-not-allowed px-4 py-2 rounded-xl bg-slate-100 text-slate-400 text-xs font-semibold"' : 'class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1.5 shadow-soft transition"'}
+            >
+              <i data-lucide="chevron-left" class="w-4 h-4"></i> Anterior
+            </button>
+
+            ${t.indiceActual < t.preguntas.length - 1 ? `
+              <button 
+                onclick="cambiarPregunta(${t.indiceActual + 1})"
+                class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition active:scale-95"
+              >
+                Siguiente <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            ` : `
+              <button 
+                onclick="finalizarTest()"
+                class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-500/25 transition active:scale-95"
+              >
+                <i data-lucide="check-check" class="w-4 h-4"></i> Entregar Examen
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+      }
+      lucide.createIcons();
+    }
+
+    function seleccionarOpcion(idx) {
+      if (!state.activeTest) return;
+      state.activeTest.respuestas[state.activeTest.indiceActual] = idx;
+      renderTestRunner(document.getElementById('app-viewport'));
+    }
+
+    function dejarEnBlanco() {
+      if (!state.activeTest) return;
+      delete state.activeTest.respuestas[state.activeTest.indiceActual];
+      renderTestRunner(document.getElementById('app-viewport'));
+    }
+
+    function cambiarPregunta(idx) {
+      if (!state.activeTest || idx < 0 || idx >= state.activeTest.preguntas.length) return;
+      state.activeTest.indiceActual = idx;
+      renderTestRunner(document.getElementById('app-viewport'));
+    }
+
+    // 16. FINALIZACIÓN, DESGLOSE POR BLOQUES Y PERSISTENCIA HISTÓRICA
+    async function finalizarTest() {
+      if (!state.activeTest) return;
+      clearInterval(state.testTimerInterval);
+      state.activeTest.finalizado = true;
+
+      const t = state.activeTest;
+      let aciertos = 0;
+      let fallos = 0;
+      let blancos = 0;
+
+      const idsFalladosSesion = [];
+      const idsAcertadosSesion = [];
+      const intentosLocales = [];
+
+      const desgloseBloques = {
+        1: { total: 0, aciertos: 0 },
+        2: { total: 0, aciertos: 0 },
+        3: { total: 0, aciertos: 0 },
+        4: { total: 0, aciertos: 0 },
+        5: { total: 0, aciertos: 0 },
+        6: { total: 0, aciertos: 0 }
+      };
+
+      const primerPregunta = t.preguntas[0] || {};
+      const temaDeducido = t.meta?.temaNum || primerPregunta.tema_num || null;
+      const bloqueDeducido = t.meta?.bloqueId || primerPregunta.bloque_id || null;
+
+      const detalles = t.preguntas.map((p, idx) => {
+        const seleccion = t.respuestas[idx];
+        const esBlanco = seleccion === undefined;
+        const esAcierto = !esBlanco && seleccion === p.correcta;
+
+        const bId = p.bloque_id && p.bloque_id >= 1 && p.bloque_id <= 6 ? p.bloque_id : (bloqueDeducido || 1);
+        desgloseBloques[bId].total++;
+
+        intentosLocales.push({
+          pregunta_id: p.id,
+          bloque_id: bId,
+          tema_num: p.tema_num || temaDeducido,
+          es_acierto: esAcierto,
+          opcion_seleccionada: seleccion !== undefined ? seleccion : null,
+          fecha: new Date().toISOString()
+        });
+
+        if (esBlanco) {
+          blancos++;
+        } else if (esAcierto) {
+          aciertos++;
+          idsAcertadosSesion.push(p.id);
+          desgloseBloques[bId].aciertos++;
+        } else {
+          fallos++;
+          idsFalladosSesion.push(p.id);
+        }
+
+        return { pregunta: p, seleccion, esAcierto, esBlanco };
+      });
+
+      guardarIntentosLocales(intentosLocales);
+
+      const totalPreguntas = t.preguntas.length;
+      const notaNeta = Math.max(0, (aciertos - (fallos / 3))).toFixed(2);
+      const sobreDiez = totalPreguntas > 0 ? ((notaNeta / totalPreguntas) * 10).toFixed(2) : "0.00";
+      const segundos = Math.max(1, t.segundos);
+      const segPorPregunta = totalPreguntas > 0 ? (segundos / totalPreguntas).toFixed(1) : 0;
+
+      let tipoDb = 'aleatorio';
+      if (t.tipo === 'tema') tipoDb = 'tema';
+      else if (t.tipo === 'bloque') tipoDb = 'bloque';
+      else if (t.tipo === 'fallos') tipoDb = 'fallos';
+      else if (t.tipo === 'semanal') tipoDb = 'semanal';
+
+      let dbBloqueId = null;
+      let dbTemaNum = null;
+
+      if (t.tipo === 'tema') {
+        dbTemaNum = t.meta?.temaNum ? Number(t.meta.temaNum) : (t.preguntas[0]?.tema_num || null);
+        if (t.meta?.bloqueId) {
+          dbBloqueId = Number(t.meta.bloqueId);
+        } else if (dbTemaNum) {
+          const bEncontrado = TEMARIO.find(b => b.temas.some(tema => tema.num === dbTemaNum));
+          dbBloqueId = bEncontrado ? bEncontrado.id : (t.preguntas[0]?.bloque_id || null);
+        }
+      } else if (t.tipo === 'bloque') {
+        dbBloqueId = t.meta?.bloqueId ? Number(t.meta.bloqueId) : (t.preguntas[0]?.bloque_id || null);
+        dbTemaNum = null;
+      } else {
+        dbBloqueId = null;
+        dbTemaNum = null;
+      }
+
+      const metaCompleta = {
+        ...t.meta,
+        bloqueId: dbBloqueId,
+        temaNum: dbTemaNum
+      };
+
+      const nuevaSesion = {
+        id: "sesion-" + Date.now(),
+        fecha: new Date().toISOString(),
+        tipo: t.tipo,
+        meta: metaCompleta,
+        total_preguntas: totalPreguntas,
+        aciertos,
+        fallos,
+        blancos,
+        nota: sobreDiez,
+        tiempo_segundos: segundos,
+        tiempo_por_pregunta: segPorPregunta,
+        desgloseBloques
+      };
+
+      guardarSesionEnHistorialLocal(nuevaSesion);
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('sesiones_test').insert([{
+            tipo: tipoDb,
+            total_preguntas: totalPreguntas,
+            aciertos,
+            fallos,
+            blancos,
+            tiempo_segundos: segundos,
+            bloque_id: dbBloqueId,
+            tema_num: dbTemaNum
+          }]);
+
+          const intentosAInsertar = t.preguntas
+            .filter(p => p.id && !String(p.id).startsWith('mock-'))
+            .map((p, idx) => {
+              const sel = t.respuestas[idx];
+              return {
+                pregunta_id: p.id,
+                es_acierto: sel !== undefined && sel === p.correcta,
+                opcion_seleccionada: sel !== undefined ? sel : null
+              };
+            });
+
+          if (intentosAInsertar.length > 0) {
+            await supabaseClient.from('intentos').insert(intentosAInsertar);
+          }
+        } catch (e) {
+          console.error("Error guardando sesión o intentos en Supabase:", e);
+        }
+      }
+
+      await obtenerIdsFallosDesdeSupabase();
+
+      state.metricasCargadas = false;
+      state.activeTest.detalles = detalles;
+      state.activeTest.stats = { aciertos, fallos, blancos };
+
+      navigate('test-results');
+    }
+
+    // 17. GESTIÓN DE BOLSA DE FALLOS DESDE SUPABASE
+    async function obtenerIdsFallosDesdeSupabase() {
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('intentos')
+            .select('pregunta_id, es_acierto, creado_en')
+            .order('creado_en', { ascending: true });
+
+          if (!error && data) {
+            const ultimosIntentos = new Map();
+            data.forEach(it => {
+              if (it.pregunta_id) {
+                ultimosIntentos.set(it.pregunta_id, it.es_acierto);
+              }
+            });
+
+            const idsFallados = [];
+            ultimosIntentos.forEach((esAcierto, preguntaId) => {
+              if (!esAcierto) {
+                idsFallados.push(preguntaId);
+              }
+            });
+
+            state.fallosIdsSupabase = idsFallados;
+            return idsFallados;
+          }
+        } catch (e) {
+          console.warn("Fallo obteniendo bolsa de fallos de Supabase, usando respaldo local:", e);
+        }
+      }
+
+      const locales = obtenerIntentosLocales();
+      const ultimosLocales = new Map();
+      [...locales].reverse().forEach(it => {
+        if (it.pregunta_id) {
+          ultimosLocales.set(it.pregunta_id, it.es_acierto);
+        }
+      });
+
+      const idsLocales = [];
+      ultimosLocales.forEach((esAcierto, id) => {
+        if (!esAcierto) idsLocales.push(id);
+      });
+
+      state.fallosIdsSupabase = idsLocales;
+      return idsLocales;
+    }
+
+    function obtenerSesionesHistorial() {
+      try {
+        const raw = localStorage.getItem('oposicion_historial_sesiones');
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function guardarSesionEnHistorialLocal(sesion) {
+      const historial = obtenerSesionesHistorial();
+      historial.unshift(sesion);
+      localStorage.setItem('oposicion_historial_sesiones', JSON.stringify(historial.slice(0, 100)));
+    }
+
+    function obtenerIntentosLocales() {
+      try {
+        const raw = localStorage.getItem('oposicion_intentos_locales');
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function guardarIntentosLocales(nuevosIntentos) {
+      if (!nuevosIntentos || nuevosIntentos.length === 0) return;
+      const actuales = obtenerIntentosLocales();
+      const actualizados = [...nuevosIntentos, ...actuales].slice(0, 500);
+      localStorage.setItem('oposicion_intentos_locales', JSON.stringify(actualizados));
+    }
+
+    function borrarHistorialTests() {
+      if (confirm("¿Estás seguro de que deseas reiniciar el histórico local de tests?")) {
+        localStorage.removeItem('oposicion_historial_sesiones');
+        localStorage.removeItem('oposicion_intentos_locales');
+        state.metricasCargadas = false;
+        renderDashboard(document.getElementById('app-viewport'));
+      }
+    }
+
+    function formatearTiempo(segundosTotales) {
+      const s = Math.round(segundosTotales);
+      const m = Math.floor(s / 60);
+      const seg = s % 60;
+      if (m < 60) {
+        return `${String(m).padStart(2, '0')}:${String(seg).padStart(2, '0')}`;
+      }
+      const h = Math.floor(m / 60);
+      const min = m % 60;
+      return `${h}h ${min}m`;
+    }
+
+    function formatearFecha(isoString) {
+      try {
+        const d = new Date(isoString);
+        return d.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch (e) {
+        return 'Reciente';
+      }
+    }
+
+    function etiquetaTipoTest(tipo, meta = {}) {
+      switch (tipo) {
+        case 'simulacro':
+        case 'aleatorio':
+          return { texto: 'Simulacro Oficial', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+        case 'bloque':
+          return { texto: meta.bloqueId ? `Bloque ${meta.bloqueId}` : 'Por Bloque', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+        case 'tema':
+          return { texto: meta.temaNum ? `Tema ${meta.temaNum}` : 'Por Tema', color: 'bg-brand-50 text-brand-700 border-brand-200' };
+        case 'fallos':
+          return { texto: 'Bolsa de Fallos', color: 'bg-rose-50 text-rose-700 border-rose-200' };
+        case 'semanal':
+          return { texto: 'Test Semanal', color: 'bg-purple-50 text-purple-700 border-purple-200' };
+        default:
+          return { texto: 'Test Oficial', color: 'bg-slate-100 text-slate-700 border-slate-200' };
+      }
+    }
+
+    function descripcionMateriaTest(tipo, meta = {}) {
+      if (tipo === 'simulacro' || tipo === 'aleatorio') {
+        return 'Simulacro General Oficial (Bloques 1 al 6)';
+      }
+      if (tipo === 'fallos') {
+        return 'Bolsa de Fallos (Repaso de preguntas con error previo)';
+      }
+      if (tipo === 'bloque') {
+        const bId = meta?.bloqueId;
+        const b = TEMARIO.find(x => x.id === Number(bId));
+        return b ? `Bloque ${b.id}: ${b.nombre}` : (bId ? `Bloque ${bId}` : 'Test de Bloque Completo');
+      }
+      if (tipo === 'tema') {
+        const tNum = meta?.temaNum;
+        if (tNum) {
+          const bloque = TEMARIO.find(x => x.temas.some(t => t.num === Number(tNum)));
+          const tema = bloque?.temas.find(t => t.num === Number(tNum));
+          if (tema) {
+            return `Tema ${tema.num}: ${tema.titulo} (Bloque ${bloque.id})`;
+          }
+          return `Tema ${tNum}`;
+        }
+        return 'Test por Tema Oficial';
+      }
+      return 'Test transversal';
+    }
+
+    // 18. VISTA: RESULTADOS DE TEST
+    function renderTestResults(container) {
+      const t = state.activeTest;
+      if (!t || !t.stats) {
+        navigate('test-center');
+        return;
+      }
+
+      const total = t.preguntas.length;
+      const aciertos = t.stats.aciertos;
+      const fallos = t.stats.fallos;
+      const blancos = t.stats.blancos;
+      const notaNeta = Math.max(0, aciertos - (fallos / 3)).toFixed(2);
+      const sobreDiez = total > 0 ? ((notaNeta / total) * 10).toFixed(2) : "0.00";
+      const aprobado = parseFloat(sobreDiez) >= 5.0;
+
+      container.innerHTML = `
+        <div class="max-w-3xl mx-auto space-y-6 animate-fadeIn">
+          
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-soft text-center space-y-4">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${aprobado ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
+              <i data-lucide="${aprobado ? 'check-circle' : 'alert-circle'}" class="w-3.5 h-3.5"></i>
+              ${aprobado ? 'Superado' : 'No Aprobado'}
+            </div>
+
+            <div>
+              <div class="text-4xl sm:text-5xl font-extrabold tracking-tight ${aprobado ? 'text-emerald-600' : 'text-rose-600'}">
+                ${sobreDiez} <span class="text-xl sm:text-2xl text-slate-400 font-semibold">/ 10</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">
+                Nota neta aplicando baremo oficial: cada fallo resta 0,33 puntos.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2 max-w-lg mx-auto pt-2 text-center text-xs">
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="block text-slate-400 text-[10px]">Total</span>
+                <span class="font-bold text-slate-800 text-sm">${total}</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-100 text-emerald-800">
+                <span class="block text-emerald-600 text-[10px]">Aciertos</span>
+                <span class="font-bold text-sm">+${aciertos}</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-rose-50/80 border border-rose-100 text-rose-800">
+                <span class="block text-rose-600 text-[10px]">Fallos</span>
+                <span class="font-bold text-sm">-${fallos}</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-500">
+                <span class="block text-slate-400 text-[10px]">En Blanco</span>
+                <span class="font-bold text-sm">${blancos}</span>
+              </div>
+            </div>
+
+            <div class="pt-3 flex flex-wrap justify-center gap-2.5">
+              <button onclick="navigate('test-center')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-sm transition active:scale-95">
+                Volver a Tests
+              </button>
+              <button onclick="navigate('dashboard')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">
+                Ver Mi Progreso
+              </button>
+            </div>
+          </div>
+
+          <!-- Corrección detallada pregunta a pregunta -->
+          <div class="space-y-4">
+            <h3 class="text-base font-bold text-slate-900 px-1">Revisión de respuestas</h3>
+            ${(t.detalles || []).map((item, idx) => {
+              const p = item.pregunta;
+              const sel = item.seleccion;
+              const esCorrecta = item.esAcierto;
+              const esBlanca = item.esBlanco;
+
+              return `
+                <div class="bg-white p-5 rounded-2xl border ${esCorrecta ? 'border-emerald-200 bg-emerald-50/20' : esBlanca ? 'border-slate-200' : 'border-rose-200 bg-rose-50/20'} space-y-3">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-mono font-bold text-slate-500">Pregunta ${idx + 1} • Tema ${p.tema_num || '—'}</span>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${esCorrecta ? 'bg-emerald-100 text-emerald-800' : esBlanca ? 'bg-slate-100 text-slate-600' : 'bg-rose-100 text-rose-800'}">
+                      ${esCorrecta ? 'Correcta' : esBlanca ? 'En blanco' : 'Fallada'}
+                    </span>
+                  </div>
+
+                  <p class="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">${p.enunciado}</p>
+
+                  <div class="space-y-1.5 text-xs">
+                    ${p.opciones.map((op, oIdx) => {
+                      const esOpcionCorrecta = oIdx === p.correcta;
+                      const esOpcionElegida = oIdx === sel;
+                      
+                      let estilo = "bg-slate-50 border-slate-200 text-slate-600";
+                      if (esOpcionCorrecta) {
+                        estilo = "bg-emerald-50 border-emerald-400 text-emerald-900 font-semibold";
+                      } else if (esOpcionElegida && !esCorrecta) {
+                        estilo = "bg-rose-50 border-rose-400 text-rose-900 font-semibold";
+                      }
+
+                      return `
+                        <div class="p-2.5 rounded-xl border text-xs flex items-center justify-between ${estilo}">
+                          <span>${op}</span>
+                          ${esOpcionCorrecta ? '<span class="text-[10px] font-bold text-emerald-700">Respuesta correcta</span>' : ''}
+                          ${esOpcionElegida && !esCorrecta ? '<span class="text-[10px] font-bold text-rose-700">Tu respuesta</span>' : ''}
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+
+                  ${p.explicacion ? `
+                    <div class="p-3 bg-brand-50/60 border border-brand-200/80 rounded-xl text-xs text-brand-900 space-y-1">
+                      <span class="font-bold block text-[11px] text-brand-700 uppercase tracking-wider">Justificación oficial:</span>
+                      <p class="leading-relaxed">${p.explicacion}</p>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+        </div>
+      `;
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+      }
+      lucide.createIcons();
+    }
+
+    // 19. VISTA: DASHBOARD DE MÉTRICAS, RENDIMIENTO Y NUEVO HISTORIAL
+    async function cargarMetricasReales() {
+      let sesiones = [];
+      const aciertosBloques = [0, 0, 0, 0, 0, 0];
+      const totalesBloques = [0, 0, 0, 0, 0, 0];
+      let intentosProcesados = 0;
+
+      await obtenerIdsFallosDesdeSupabase();
+
+      if (supabaseClient) {
+        try {
+          const { data: sesionesDb, error: errSesiones } = await supabaseClient
+            .from('sesiones_test')
+            .select('*')
+            .order('creado_en', { ascending: false });
+
+          if (!errSesiones && sesionesDb && sesionesDb.length > 0) {
+            sesiones = sesionesDb.map(s => {
+              const total = s.total_preguntas || 0;
+              const ac = s.aciertos || 0;
+              const fl = s.fallos || 0;
+              const bl = s.blancos || 0;
+              const notaNeta = Math.max(0, ac - (fl / 3));
+              const nota = total > 0 ? ((notaNeta / total) * 10).toFixed(2) : "0.00";
+              const segs = s.tiempo_segundos || 0;
+              const segPorP = total > 0 ? (segs / total).toFixed(1) : 0;
+
+              const metaExtraida = {
+                bloqueId: s.bloque_id !== undefined ? s.bloque_id : null,
+                temaNum: s.tema_num !== undefined ? s.tema_num : null
+              };
+
+              if (!metaExtraida.temaNum && !metaExtraida.bloqueId && (s.tipo === 'tema' || s.tipo === 'bloque')) {
+                const matchLocal = obtenerSesionesHistorial().find(l => 
+                  l.total_preguntas === total && l.aciertos === ac && l.fallos === fl && (l.meta?.temaNum || l.meta?.bloqueId)
+                );
+                if (matchLocal) {
+                  metaExtraida.bloqueId = matchLocal.meta?.bloqueId || null;
+                  metaExtraida.temaNum = matchLocal.meta?.temaNum || null;
+                }
+              }
+
+              return {
+                id: s.id,
+                fecha: s.creado_en,
+                tipo: s.tipo === 'aleatorio' ? 'simulacro' : s.tipo,
+                meta: metaExtraida,
+                total_preguntas: total,
+                aciertos: ac,
+                fallos: fl,
+                blancos: bl,
+                nota: nota,
+                tiempo_segundos: segs,
+                tiempo_por_pregunta: segPorP
+              };
+            });
+          }
+
+          const { data: intentosDb, error: errIntentos } = await supabaseClient
+            .from('intentos')
+            .select(`
+              es_acierto,
+              preguntas!inner (
+                bloque_id
+              )
+            `);
+
+          if (!errIntentos && intentosDb && intentosDb.length > 0) {
+            intentosDb.forEach(it => {
+              const bId = it.preguntas?.bloque_id;
+              if (bId && bId >= 1 && bId <= 6) {
+                totalesBloques[bId - 1]++;
+                if (it.es_acierto) {
+                  aciertosBloques[bId - 1]++;
+                }
+                intentosProcesados++;
+              }
+            });
+          } else if (errIntentos) {
+            console.warn("Consulta a intentos con relación falló, probando consulta plana:", errIntentos.message);
+            const { data: dbPreguntas } = await supabaseClient.from('preguntas').select('id, bloque_id');
+            const { data: rawIntentos } = await supabaseClient.from('intentos').select('pregunta_id, es_acierto');
+            if (rawIntentos && dbPreguntas) {
+              const mapaP = new Map();
+              dbPreguntas.forEach(p => mapaP.set(p.id, p.bloque_id));
+              rawIntentos.forEach(it => {
+                const bId = mapaP.get(it.pregunta_id);
+                if (bId && bId >= 1 && bId <= 6) {
+                  totalesBloques[bId - 1]++;
+                  if (it.es_acierto) aciertosBloques[bId - 1]++;
+                  intentosProcesados++;
+                }
+              });
+            }
+          }
+        } catch (e) {
+          console.warn("Fallo cargando métricas desde Supabase:", e);
+        }
+      }
+
+      const localHistorial = obtenerSesionesHistorial();
+      if (intentosProcesados === 0 && localHistorial.length > 0) {
+        localHistorial.forEach(s => {
+          if (s.desgloseBloques) {
+            for (let b = 1; b <= 6; b++) {
+              if (s.desgloseBloques[b]) {
+                totalesBloques[b - 1] += s.desgloseBloques[b].total || 0;
+                aciertosBloques[b - 1] += s.desgloseBloques[b].aciertos || 0;
+              }
+            }
+          }
+        });
+      }
+
+      if (sesiones.length === 0 && localHistorial.length > 0) {
+        sesiones = localHistorial;
+      }
+
+      state.sesionesHistorial = sesiones;
+
+      let totalTests = sesiones.length;
+      let totalIntentos = 0;
+      let aciertos = 0;
+      let fallos = 0;
+      let blancos = 0;
+      let tiempoTotalSegundos = 0;
+
+      sesiones.forEach(s => {
+        totalIntentos += (s.total_preguntas || 0);
+        aciertos += (s.aciertos || 0);
+        fallos += (s.fallos || 0);
+        blancos += (s.blancos || 0);
+        tiempoTotalSegundos += (s.tiempo_segundos || 0);
+      });
+
+      const porBloque = totalesBloques.map((tot, idx) => {
+        return tot > 0 ? Math.round((aciertosBloques[idx] / tot) * 100) : 0;
+      });
+
+      const tiempoMedioPorTest = totalTests > 0 ? Math.round(tiempoTotalSegundos / totalTests) : 0;
+      const tiempoMedioPorPregunta = totalIntentos > 0 ? (tiempoTotalSegundos / totalIntentos).toFixed(1) : 0;
+
+      state.metricas = {
+        totalTests,
+        totalIntentos,
+        aciertos,
+        fallos,
+        blancos,
+        tiempoTotalSegundos,
+        tiempoMedioPorTest,
+        tiempoMedioPorPregunta,
+        porBloque,
+        preguntasTotalesPorBloque: totalesBloques,
+        aciertosPorBloque: aciertosBloques
+      };
+
+      state.metricasCargadas = true;
+    }
+
+    function setHistoryFilter(tipo) {
+      state.historyFilter = tipo;
+      renderDashboard(document.getElementById('app-viewport'));
+    }
+
+    function actualizarSelectoresModalTimeline() {
+      const selectBloque = document.getElementById('select-timeline-bloque');
+      const selectTema = document.getElementById('select-timeline-tema');
+      if (!selectBloque || !selectTema) return;
+
+      selectBloque.value = state.timelineFiltroBloque;
+
+      let temasParaSelect = [];
+      if (state.timelineFiltroBloque === 'all') {
+        temasParaSelect = TEMARIO.flatMap(b => b.temas).filter(t => esTemaDisponible(t.num));
+      } else {
+        const bloqueObj = TEMARIO.find(b => b.id === Number(state.timelineFiltroBloque));
+        temasParaSelect = bloqueObj ? bloqueObj.temas.filter(t => esTemaDisponible(t.num)) : [];
+      }
+
+      let optionsHtml = `<option value="all">Todos los temas</option>`;
+      temasParaSelect.forEach(t => {
+        optionsHtml += `<option value="${t.num}" ${state.timelineFiltroTema === String(t.num) ? 'selected' : ''}>Tema ${t.num}: ${t.titulo.substring(0, 22)}...</option>`;
+      });
+      selectTema.innerHTML = optionsHtml;
+      selectTema.value = state.timelineFiltroTema;
+    }
+
+    function cambiarFiltroTimelineBloque(bloqueVal) {
+      state.timelineFiltroBloque = bloqueVal;
+      state.timelineFiltroTema = 'all';
+      actualizarSelectoresModalTimeline();
+      renderChartTimelineModal();
+    }
+
+    function cambiarFiltroTimelineTema(temaVal) {
+      state.timelineFiltroTema = temaVal;
+      renderChartTimelineModal();
+    }
+
+    function obtenerSesionesParaTimeline() {
+      let lista = [...(state.sesionesHistorial || [])];
+      
+      // Orden cronológico ascendente (de antiguo a nuevo para ver la evolución)
+      lista.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+      if (state.timelineFiltroBloque !== 'all') {
+        const bId = Number(state.timelineFiltroBloque);
+        lista = lista.filter(s => s.meta?.bloqueId === bId);
+      }
+
+      if (state.timelineFiltroTema !== 'all') {
+        const tNum = Number(state.timelineFiltroTema);
+        lista = lista.filter(s => s.meta?.temaNum === tNum);
+      }
+
+      return lista;
+    }
+
+    async function renderDashboard(container) {
+      if (!state.metricasCargadas) {
+        container.innerHTML = `
+          <div class="flex flex-col items-center justify-center p-12 text-slate-400 gap-2">
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-brand-600 border-t-transparent"></div>
+            <span class="text-xs">Cargando métricas y sesiones del opositor desde la base de datos...</span>
+          </div>
+        `;
+        await cargarMetricasReales();
+      }
+
+      const m = state.metricas;
+      const tieneDatos = m.totalIntentos > 0;
+      const pctGlobal = tieneDatos ? Math.round((m.aciertos / m.totalIntentos) * 100) : 0;
+      const fallosCount = state.fallosIdsSupabase.length;
+
+      let historialFiltrado = state.sesionesHistorial || [];
+      if (state.historyFilter !== 'all') {
+        historialFiltrado = historialFiltrado.filter(s => {
+          if (state.historyFilter === 'simulacro') {
+            return s.tipo === 'simulacro' || s.tipo === 'aleatorio';
+          }
+          return s.tipo === state.historyFilter;
+        });
+      }
+
+      let temasParaSelect = [];
+      if (state.timelineFiltroBloque === 'all') {
+        temasParaSelect = TEMARIO.flatMap(b => b.temas).filter(t => esTemaDisponible(t.num));
+      } else {
+        const bloqueObj = TEMARIO.find(b => b.id === Number(state.timelineFiltroBloque));
+        temasParaSelect = bloqueObj ? bloqueObj.temas.filter(t => esTemaDisponible(t.num)) : [];
+      }
+
+      container.innerHTML = `
+        <div class="space-y-7 animate-fadeIn">
+          
+          <!-- Encabezado del Dashboard -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+            <div>
+              <div class="inline-flex items-center gap-1.5 text-brand-600 text-xs font-bold uppercase tracking-wider mb-1">
+                <i data-lucide="activity" class="w-3.5 h-3.5"></i> Rendimiento Analítico
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Evolución del Opositor</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Control de tiempos, aciertos, fallos y evolución por bloques oficiales</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="lanzarSimulacro()" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl font-semibold text-xs shadow-sm transition active:scale-95">
+                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Simulacro Oficial (60 P)
+              </button>
+            </div>
+          </div>
+
+          <!-- Bento Grid de Métricas Principales -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- % Acierto Global -->
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-soft flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">% Acierto Global</span>
+                <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+                  <i data-lucide="target" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="text-3xl font-extrabold text-slate-900">${tieneDatos ? `${pctGlobal}%` : '—'}</div>
+                <div class="text-xs text-slate-500 mt-1">
+                  ${tieneDatos ? `<span class="text-emerald-600 font-semibold">${m.aciertos} aciertos</span> de ${m.totalIntentos} preguntas` : 'Sin pruebas realizadas'}
+                </div>
+              </div>
+            </div>
+
+            <!-- Tiempos de Resolución -->
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-soft flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tiempo / Pregunta</span>
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <i data-lucide="clock" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="text-3xl font-extrabold text-indigo-950">${tieneDatos ? `${m.tiempoMedioPorPregunta}s` : '—'}</div>
+                <div class="text-xs text-slate-500 mt-1">
+                  ${tieneDatos ? `Media por test: <strong>${formatearTiempo(m.tiempoMedioPorTest)}</strong>` : 'Cronómetro inactivo'}
+                </div>
+              </div>
+            </div>
+
+            <!-- Bolsa de Fallos Activa (Directa de Supabase) -->
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-soft flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Bolsa de Fallos</span>
+                <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                  <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="text-3xl font-extrabold ${fallosCount > 0 ? 'text-rose-600' : 'text-slate-400'}">${fallosCount}</div>
+                <div class="text-xs mt-1">
+                  ${fallosCount > 0 ? `
+                    <button onclick="lanzarTestFallos()" class="text-rose-600 font-bold hover:underline inline-flex items-center gap-1">
+                      Repasar bolsa ahora <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                    </button>
+                  ` : `
+                    <span class="text-emerald-600 font-medium">Bolsa limpia y al día</span>
+                  `}
+                </div>
+              </div>
+            </div>
+
+            <!-- Volumen Total & Tiempo Invertido -->
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-soft flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tests Completados</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <i data-lucide="check-check" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="mt-4">
+                <div class="text-3xl font-extrabold text-emerald-700">${m.totalTests}</div>
+                <div class="text-xs text-slate-500 mt-1">
+                  Tiempo total: <strong>${formatearTiempo(m.tiempoTotalSegundos)}</strong>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Gráfico de Rendimiento por Bloque -->
+          <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-soft space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="bar-chart-2" class="w-4 h-4 text-brand-600"></i> Rendimiento por Bloque del Temario
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Porcentaje de acierto obtenido a partir de cada pregunta registrada en tu base de datos</p>
+              </div>
+              <div class="text-xs font-mono text-slate-500">
+                Escala: 0% a 100%
+              </div>
+            </div>
+            
+            ${(m.preguntasTotalesPorBloque.reduce((a, b) => a + b, 0) > 0) ? `
+              <div class="relative w-full h-72 pt-2">
+                <canvas id="chart-bloques"></canvas>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 pt-3 border-t border-slate-100 text-center">
+                ${TEMARIO.map((b, idx) => `
+                  <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                    <span class="block text-[10px] text-slate-400 font-bold">Bloque ${b.id}</span>
+                    <span class="font-extrabold text-sm ${m.porBloque[idx] >= 50 ? 'text-emerald-600' : m.porBloque[idx] > 0 ? 'text-rose-600' : 'text-slate-400'}">
+                      ${m.porBloque[idx]}%
+                    </span>
+                    <span class="block text-[9px] text-slate-400">(${m.aciertosPorBloque[idx]}/${m.preguntasTotalesPorBloque[idx]} P)</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <div class="py-10 border-2 border-dashed border-slate-200 rounded-2xl text-center space-y-2.5">
+                <div class="mx-auto w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                  <i data-lucide="bar-chart" class="w-5 h-5"></i>
+                </div>
+                <p class="text-sm font-semibold text-slate-700">Sin desglose de preguntas registrado en la tabla "intentos"</p>
+                <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                  ${m.totalTests > 0 
+                    ? 'Tienes sesiones guardadas en <code>sesiones_test</code>, pero no se registraron las preguntas individuales en la tabla <code>intentos</code>. Haz un test desde el campus para que se guarden tus intentos y se active el gráfico automáticamente.' 
+                    : 'Completa un test de tema, de bloque o simulacro para registrar tu progreso y activar el gráfico por bloques.'}
+                </p>
+                <div class="pt-2">
+                  <button onclick="navigate('test-center')" class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition active:scale-95">
+                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Iniciar una prueba ahora
+                  </button>
+                </div>
+              </div>
+            `}
+          </div>
+
+          <!-- Histórico Detallado de Tests por Tipo -->
+          <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-soft space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="history" class="w-4 h-4 text-indigo-600"></i> Histórico Detallado de Sesiones
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Registro cronológico de evaluaciones con tiempo empleado, penalización y nota</p>
+              </div>
+
+              <!-- Acciones y Filtros de Historial -->
+              <div class="flex flex-wrap items-center gap-2">
+                <button 
+                  onclick="abrirModalEvolutivo()"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-semibold shadow-sm transition active:scale-95"
+                  title="Abrir gráfica evolutiva de % aciertos y % fallos"
+                >
+                  <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                  <span>Ver Evolutivo</span>
+                </button>
+
+                <div class="inline-flex p-1 bg-slate-100 rounded-xl text-xs font-semibold gap-1 overflow-x-auto">
+                  <button 
+                    onclick="setHistoryFilter('all')" 
+                    class="px-2.5 py-1 rounded-lg transition ${state.historyFilter === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}"
+                  >
+                    Todos (${state.sesionesHistorial.length})
+                  </button>
+                  <button 
+                    onclick="setHistoryFilter('simulacro')" 
+                    class="px-2.5 py-1 rounded-lg transition ${state.historyFilter === 'simulacro' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'}"
+                  >
+                    Simulacros
+                  </button>
+                  <button 
+                    onclick="setHistoryFilter('bloque')" 
+                    class="px-2.5 py-1 rounded-lg transition ${state.historyFilter === 'bloque' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'}"
+                  >
+                    Por Bloque
+                  </button>
+                  <button 
+                    onclick="setHistoryFilter('tema')" 
+                    class="px-2.5 py-1 rounded-lg transition ${state.historyFilter === 'tema' ? 'bg-white text-brand-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'}"
+                  >
+                    Por Tema
+                  </button>
+                  <button 
+                    onclick="setHistoryFilter('fallos')" 
+                    class="px-2.5 py-1 rounded-lg transition ${state.historyFilter === 'fallos' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'}"
+                  >
+                    Fallos
+                  </button>
+                </div>
+
+                ${state.sesionesHistorial.length > 0 ? `
+                  <button 
+                    onclick="borrarHistorialTests()" 
+                    title="Reiniciar histórico" 
+                    class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition ml-0.5"
+                  >
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Tabla de Registros -->
+            ${historialFiltrado.length > 0 ? `
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-200/80 text-slate-400 font-semibold text-[11px] uppercase tracking-wider">
+                      <th class="py-3 px-3">Fecha y Hora</th>
+                      <th class="py-3 px-3">Modalidad</th>
+                      <th class="py-3 px-3">Materia / Tema o Bloque</th>
+                      <th class="py-3 px-3 text-center">Preguntas</th>
+                      <th class="py-3 px-3 text-center">A / F / B</th>
+                      <th class="py-3 px-3 text-center">Nota (0-10)</th>
+                      <th class="py-3 px-3 text-right">Tiempo Total</th>
+                      <th class="py-3 px-3 text-right">Ritmo</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${historialFiltrado.map(s => {
+                      const tag = etiquetaTipoTest(s.tipo, s.meta);
+                      const materia = descripcionMateriaTest(s.tipo, s.meta);
+                      const aprobado = parseFloat(s.nota) >= 5.0;
+                      return `
+                        <tr class="hover:bg-slate-50/70 transition">
+                          <td class="py-3 px-3 font-medium text-slate-600 whitespace-nowrap">
+                            ${formatearFecha(s.fecha)}
+                          </td>
+                          <td class="py-3 px-3">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${tag.color}">
+                              ${tag.texto}
+                            </span>
+                          </td>
+                          <td class="py-3 px-3 text-slate-700 font-medium max-w-xs truncate" title="${materia}">
+                            ${materia}
+                          </td>
+                          <td class="py-3 px-3 text-center font-mono font-semibold text-slate-700">
+                            ${s.total_preguntas}
+                          </td>
+                          <td class="py-3 px-3 text-center font-mono whitespace-nowrap">
+                            <span class="text-emerald-700 font-bold">${s.aciertos}</span> /
+                            <span class="text-rose-600 font-bold">${s.fallos}</span> /
+                            <span class="text-slate-400">${s.blancos}</span>
+                          </td>
+                          <td class="py-3 px-3 text-center">
+                            <span class="font-extrabold font-mono text-xs px-2 py-0.5 rounded-md ${aprobado ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
+                              ${s.nota}
+                            </span>
+                          </td>
+                          <td class="py-3 px-3 text-right font-mono text-slate-700 font-medium whitespace-nowrap">
+                            ${formatearTiempo(s.tiempo_segundos)}
+                          </td>
+                          <td class="py-3 px-3 text-right font-mono text-slate-500 text-[11px] whitespace-nowrap">
+                            ${s.tiempo_por_pregunta ? `${s.tiempo_por_pregunta}s/P` : '—'}
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : `
+              <div class="py-8 text-center text-slate-400 text-xs">
+                No hay sesiones registradas en este filtro.
+              </div>
+            `}
+          </div>
+
+          <!-- MODAL: GRÁFICO EVOLUTIVO -->
+          <div id="modal-evolutivo" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+            <div class="bg-white w-full max-w-4xl rounded-3xl border border-slate-200 shadow-floating flex flex-col max-h-[92vh] overflow-hidden animate-fadeIn">
+              
+              <!-- Cabecera de la modal -->
+              <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/50">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">Evolución Cronológica (% Aciertos vs % Fallos)</h3>
+                    <p class="text-[11px] text-slate-500">Porcentaje de precisión y fallos sesión a sesión</p>
+                  </div>
+                </div>
+
+                <button 
+                  onclick="cerrarModalEvolutivo()" 
+                  class="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition"
+                >
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Filtros de la modal -->
+              <div class="px-5 sm:px-6 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2.5 bg-white">
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-slate-400 font-medium text-[11px]">Bloque:</span>
+                    <select 
+                      id="select-timeline-bloque" 
+                      onchange="cambiarFiltroTimelineBloque(this.value)"
+                      class="bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-medium focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none"
+                    >
+                      <option value="all" ${state.timelineFiltroBloque === 'all' ? 'selected' : ''}>Todos los bloques</option>
+                      ${TEMARIO.map(b => `
+                        <option value="${b.id}" ${state.timelineFiltroBloque === String(b.id) ? 'selected' : ''}>
+                          Bloque ${b.id}: ${b.nombre.substring(0, 20)}...
+                        </option>
+                      `).join('')}
+                    </select>
+                  </div>
+
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-slate-400 font-medium text-[11px]">Tema:</span>
+                    <select 
+                      id="select-timeline-tema" 
+                      onchange="cambiarFiltroTimelineTema(this.value)"
+                      class="bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-medium focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none"
+                    >
+                      <option value="all" ${state.timelineFiltroTema === 'all' ? 'selected' : ''}>Todos los temas</option>
+                      ${temasParaSelect.map(t => `
+                        <option value="${t.num}" ${state.timelineFiltroTema === String(t.num) ? 'selected' : ''}>
+                          Tema ${t.num}: ${t.titulo.substring(0, 22)}...
+                        </option>
+                      `).join('')}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-3 text-[11px] font-medium text-slate-600">
+                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> % Aciertos</span>
+                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> % Fallos</span>
+                </div>
+              </div>
+
+              <!-- Cuerpo con Canvas -->
+              <div class="p-5 sm:p-6 overflow-y-auto flex-1" id="timeline-modal-body">
+                <div class="relative w-full h-80">
+                  <canvas id="chart-timeline"></canvas>
+                </div>
+                <div id="timeline-modal-empty" class="hidden py-16 border-2 border-dashed border-slate-200 rounded-2xl text-center space-y-2">
+                  <div class="mx-auto w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                  </div>
+                  <p class="text-sm font-semibold text-slate-700">Sin sesiones para el filtro seleccionado</p>
+                  <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                    Prueba a seleccionar "Todos los bloques" o completa un test de esta categoría para ver su evolución cronológica.
+                  </p>
+                </div>
+                <div id="timeline-modal-footer-stats" class="mt-3 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100 pt-2 font-mono">
+                  <span>Escala fija de 0% a 100%</span>
+                  <span id="timeline-modal-count-text">Mostrando 0 sesión(es)</span>
+                </div>
+              </div>
+
+              <!-- Pie de modal -->
+              <div class="px-5 sm:px-6 py-3 border-t border-slate-100 flex justify-end bg-slate-50/50">
+                <button 
+                  onclick="cerrarModalEvolutivo()" 
+                  class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold rounded-xl transition"
+                >
+                  Cerrar
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      `;
+
+      lucide.createIcons();
+
+      // Renderizado de gráfico por bloques
+      const totalPreguntasGrafico = m.preguntasTotalesPorBloque.reduce((a, b) => a + b, 0);
+      if (totalPreguntasGrafico > 0) {
+        setTimeout(() => {
+          const ctx = document.getElementById('chart-bloques');
+          if (ctx) {
+            if (bloquesChartInstance) {
+              bloquesChartInstance.destroy();
+            }
+
+            bloquesChartInstance = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels: [
+                  'B.I Administrativo', 
+                  'B.II Estadística', 
+                  'B.III Economía', 
+                  'B.IV Demografía', 
+                  'B.V Muestreo', 
+                  'B.VI Informática'
+                ],
+                datasets: [{
+                  label: '% de Acierto',
+                  data: m.porBloque,
+                  backgroundColor: [
+                    'rgba(12, 135, 235, 0.85)',
+                    'rgba(99, 102, 241, 0.85)',
+                    'rgba(16, 185, 129, 0.85)',
+                    'rgba(245, 158, 11, 0.85)',
+                    'rgba(236, 72, 153, 0.85)',
+                    'rgba(14, 165, 233, 0.85)'
+                  ],
+                  borderColor: [
+                    '#0c87eb',
+                    '#6366f1',
+                    '#10b981',
+                    '#f59e0b',
+                    '#ec4899',
+                    '#0ea5e9'
+                  ],
+                  borderWidth: 1.5,
+                  borderRadius: 8
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        const idx = context.dataIndex;
+                        const pct = context.parsed.y;
+                        const ac = m.aciertosPorBloque[idx] || 0;
+                        const tot = m.preguntasTotalesPorBloque[idx] || 0;
+                        return ` Acierto: ${pct}% (${ac} de ${tot} preguntas)`;
+                      }
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                      callback: function(v) { return v + '%'; },
+                      stepSize: 20,
+                      font: { family: '"Plus Jakarta Sans", sans-serif', size: 11 }
+                    },
+                    grid: { color: 'rgba(226, 232, 240, 0.6)' }
+                  },
+                  x: {
+                    ticks: {
+                      font: { family: '"Plus Jakarta Sans", sans-serif', size: 11, weight: '500' }
+                    },
+                    grid: { display: false }
+                  }
+                }
+              }
+            });
+          }
+        }, 60);
+      }
+    }
+
+    function abrirModalEvolutivo() {
+      const modal = document.getElementById('modal-evolutivo');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+      actualizarSelectoresModalTimeline();
+      renderChartTimelineModal();
+    }
+
+    function cerrarModalEvolutivo() {
+      const modal = document.getElementById('modal-evolutivo');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function renderChartTimelineModal() {
+      const datosTimeline = obtenerSesionesParaTimeline();
+      const canvasContainer = document.querySelector('#modal-evolutivo .relative.w-full');
+      const emptyContainer = document.getElementById('timeline-modal-empty');
+      const statsFooter = document.getElementById('timeline-modal-footer-stats');
+      const countText = document.getElementById('timeline-modal-count-text');
+
+      if (datosTimeline.length === 0) {
+        if (timelineChartInstance) {
+          timelineChartInstance.destroy();
+          timelineChartInstance = null;
+        }
+        if (canvasContainer) canvasContainer.classList.add('hidden');
+        if (emptyContainer) emptyContainer.classList.remove('hidden');
+        if (statsFooter) statsFooter.classList.add('hidden');
+        lucide.createIcons();
+        return;
+      }
+
+      if (canvasContainer) canvasContainer.classList.remove('hidden');
+      if (emptyContainer) emptyContainer.classList.add('hidden');
+      if (statsFooter) statsFooter.classList.remove('hidden');
+      if (countText) countText.textContent = `Mostrando ${datosTimeline.length} sesión(es) en este filtro`;
+
+      const ctxTimeline = document.getElementById('chart-timeline');
+      if (!ctxTimeline) return;
+
+      if (timelineChartInstance) {
+        timelineChartInstance.destroy();
+      }
+
+      const labelsTimeline = datosTimeline.map((s, idx) => {
+        const d = new Date(s.fecha);
+        const diaMes = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+        const hora = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        return `#${idx + 1} (${diaMes} ${hora})`;
+      });
+
+      const pctAciertosData = datosTimeline.map(s => {
+        const tot = s.total_preguntas || 1;
+        return Math.round(((s.aciertos || 0) / tot) * 100);
+      });
+
+      const pctFallosData = datosTimeline.map(s => {
+        const tot = s.total_preguntas || 1;
+        return Math.round(((s.fallos || 0) / tot) * 100);
+      });
+
+      timelineChartInstance = new Chart(ctxTimeline, {
+        type: 'line',
+        data: {
+          labels: labelsTimeline,
+          datasets: [
+            {
+              label: '% Aciertos',
+              data: pctAciertosData,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              fill: false,
+              tension: 0.35,
+              borderWidth: 2.5,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              pointBackgroundColor: '#10b981'
+            },
+            {
+              label: '% Fallos',
+              data: pctFallosData,
+              borderColor: '#f43f5e',
+              backgroundColor: 'rgba(244, 63, 94, 0.12)',
+              fill: false,
+              tension: 0.35,
+              borderWidth: 2.5,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              pointBackgroundColor: '#f43f5e'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: { family: '"Plus Jakarta Sans", sans-serif', size: 11, weight: '600' }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                title: function(items) {
+                  const idx = items[0].dataIndex;
+                  const sesion = datosTimeline[idx];
+                  return `Sesión ${idx + 1} • ${formatearFecha(sesion.fecha)}`;
+                },
+                label: function(context) {
+                  const idx = context.dataIndex;
+                  const s = datosTimeline[idx];
+                  const tot = s.total_preguntas || 0;
+                  const val = context.parsed.y;
+                  if (context.datasetIndex === 0) {
+                    return ` % Aciertos: ${val}% (${s.aciertos || 0} de ${tot} P)`;
+                  } else {
+                    return ` % Fallos: ${val}% (${s.fallos || 0} de ${tot} P)`;
+                  }
+                },
+                afterBody: function(items) {
+                  const idx = items[0].dataIndex;
+                  const sesion = datosTimeline[idx];
+                  const materia = descripcionMateriaTest(sesion.tipo, sesion.meta);
+                  return `Materia: ${materia}\nTiempo: ${formatearTiempo(sesion.tiempo_segundos)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              min: 0,
+              max: 100,
+              title: {
+                display: true,
+                text: 'Porcentaje (%)',
+                font: { family: '"Plus Jakarta Sans", sans-serif', size: 10 }
+              },
+              grid: { color: 'rgba(226, 232, 240, 0.6)' },
+              ticks: {
+                stepSize: 20,
+                callback: function(v) { return v + '%'; },
+                font: { family: '"Plus Jakarta Sans", sans-serif', size: 10 }
+              }
+            },
+            x: {
+              grid: { display: false },
+              ticks: {
+                maxRotation: 45,
+                minRotation: 0,
+                font: { family: '"Plus Jakarta Sans", sans-serif', size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 20. INICIALIZACIÓN
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>

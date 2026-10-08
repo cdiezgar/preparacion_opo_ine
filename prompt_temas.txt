@@ -1,0 +1,26 @@
+Actúa como un profesor especialista en preparación de oposiciones y genera el resumen completo en formato Markdown del [TEMA X: NOMBRE DEL TEMA] a partir del documento/temario que te adjunto, replicando exactamente el estilo pedagógico, visual y de maquetación del Tema 38 y Tema 39.
+
+### REGLAS OBLIGATORIAS DE FORMATO Y COMPATIBILIDAD:
+
+1. **Estructura y Jerarquía:**
+   - Título principal `# Tema X. Nombre del tema`.
+   - Separadores horizontales `---` entre bloques temáticos principales.
+   - Encabezados estructurados con `##` (secciones) y `###` (subsecciones).
+   - Uso de negritas en conceptos clave y listas con viñetas para desglosar propiedades.
+   - Tablas en Markdown para clasificaciones, condiciones analíticas y comparativas.
+   - Cajas de aviso con blockquotes para reglas mnemotécnicas o notas clave: `> **Regla de Examen:** ...`
+
+2. **Diagramas SVG integrados:**
+   - Para los modelos o curvas más representativos del tema, incluye un gráfico SVG embebido con contenedor estilizado:
+     `<div class="my-6 flex justify-center not-prose"><svg viewBox="0 0 500 320" class="w-full max-w-md bg-white rounded-xl border border-slate-200 p-4 shadow-sm" xmlns="http://www.w3.org/2000/svg">...</svg></div>`
+   - Los gráficos deben tener ejes etiquetados, curvas con colores limpios (azul, rojo, verde), leyendas y líneas punteadas de equilibrio.
+
+3. **Restricciones críticas de LaTeX (Compatibilidad Web KaTeX/MathJax):**
+   - **NUNCA uses el asterisco `*` en superíndices o subíndices** (ej. NO escribir `p^*`, `q^*` ni `q^{*}`), ya que el parser de Markdown lo confunde con cursiva/negrita y rompe la fórmula.
+   - Emplea siempre subíndices o letras estándar para valores de equilibrio u óptimos: usa `$p_e$`, `$q_e$`, `$Q_M$`, `$P_C$`, `$q_0$` o el comando `\ast` (`p^{\ast}`).
+   - Las ecuaciones en bloque `$$` deben estar siempre en una línea independiente, con una línea en blanco antes y otra después.
+   - En fórmulas inline `$ ... $`, no dejes espacios entre el símbolo `$` y el texto matemático.
+   - No escapes barras invertidas de forma redundante dentro de las tablas.
+
+Adjunto el material:
+[Pegar texto o adjuntar PDF del tema]

@@ -1,0 +1,52 @@
+Actúa como un Preparador de la Oposición al Cuerpo de Diplomados en Estadística del Estado (Subgrupo A2) y Administrador de Bases de Datos PostgreSQL/Supabase.
+
+
+
+Necesito que generes un script SQL de inserción (`INSERT INTO public.preguntas`) con [CANTIDAD, ej: 20] preguntas de nivel medio-alto y alto sobre el siguiente tema:
+
+
+
+Bloque ID: 3
+Tema Num: 38
+Título Oficial: Microeconomía: oferta, demanda y equilibrio de mercado. Elasticidades de precio y renta.
+
+
+Epígrafes / Documentación de referencia adjunta:
+[PEGA AQUÍ LOS APUNTES, EL PDF O LOS EPÍGRAFES OFICIALES]
+
+
+
+REQUISITOS TÉCNICOS ESTRICTOS DE LA BBDD (SUPABASE):
+
+Estructura exacta de la tabla:
+   INSERT INTO public.preguntas (bloque_id, tema_num, enunciado, opciones, correcta, explicacion) VALUES
+
+2. Tipos de datos:
+
+   - bloque_id: integer
+
+   - tema_num: integer
+
+   - enunciado: text (entre comillas simples; duplica comillas simples interiores si fuera necesario: '')
+
+   - opciones: jsonb con array de 4 strings exactos: '["A) ...", "B) ...", "C) ...", "D) ..."]'::jsonb
+
+   - correcta: integer (índice base 0: 0 para A, 1 para B, 2 para C, 3 para D)
+
+   - explicacion: text con la fundamentación técnica, normativa o matemática del porqué es esa opción y no las otras.
+
+3. Formato matemático:
+
+   - Si incluye fórmulas o expresiones matemáticas, escríbelas en formato LaTeX válido compatible con MathJax (ej. $...$ para inline o $$...$$ para bloque). Recuerda escapar las barras invertidas en SQL si es necesario para que no rompan el string (ej. \\frac o \\sum).
+
+4. Criterios pedagógicos de examen:
+
+   - Nivel de dificultad propio del Tribunal de Oposición del INE (evitar preguntas obvias o de mera definición elemental).
+
+   - Incluir trampas habituales, diferencias sutiles de plazos/fórmulas y casos prácticos de cálculo directo.
+
+   - Solo una opción correcta indiscutible.
+
+
+
+Devuélveme ÚNICAMENTE el bloque de código SQL ejecutable dentro de un bloque markdown ```sql ... ``` sin textos introductorios ni despedidas. 
