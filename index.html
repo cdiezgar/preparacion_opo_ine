@@ -57,6 +57,9 @@
   <!-- Marked.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+  <!-- SheetJS (XLSX) CDN para importación y exportación Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <!-- MathJax CDN para fórmulas LaTeX -->
   <script>
     window.MathJax = {
@@ -238,6 +241,14 @@
         <span class="flex-1 font-medium">Centro de Tests</span>
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
       </button>
+
+      <button onclick="navigate('admin-questions')" id="nav-btn-admin-questions" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all duration-150 text-left group">
+        <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center group-hover:scale-105 transition">
+          <i data-lucide="database" class="w-4 h-4"></i>
+        </div>
+        <span class="flex-1 font-medium">Gestión de Preguntas</span>
+        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-amber-950/80 text-amber-300 border border-amber-800/50">Excel</span>
+      </button>
     </div>
 
     <!-- Navegación de Bloques -->
@@ -293,6 +304,32 @@
     <!-- Área de Vistas Dinámicas -->
     <main id="app-viewport" class="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto"></main>
   </div>
+
+  <!-- MODAL DE CONFIRMACIÓN GLOBAL (Alternativa accesible a confirm()) -->
+  <div id="modal-confirmacion-global" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl border border-slate-200 shadow-floating p-6 space-y-4 animate-fadeIn">
+      <div class="flex items-start gap-3.5">
+        <div id="confirm-modal-icon-container" class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div class="space-y-1">
+          <h3 id="confirm-modal-titulo" class="text-sm font-bold text-slate-900 leading-snug">¿Confirmar acción?</h3>
+          <p id="confirm-modal-mensaje" class="text-xs text-slate-500 leading-relaxed whitespace-pre-line">Esta acción no se podrá deshacer.</p>
+        </div>
+      </div>
+      <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+        <button onclick="cerrarModalConfirmacion()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+          Cancelar
+        </button>
+        <button id="confirm-modal-btn-accion" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5">
+          <span>Confirmar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICACIÓN GLOBAL (Persistente fuera de vistas) -->
+  <div id="toast-notificacion-global" class="fixed bottom-6 right-6 z-50 hidden max-w-sm px-4 py-3 rounded-2xl shadow-floating text-xs font-medium flex items-center gap-2.5 transition-all"></div>
 
   <!-- ==================== JAVASCRIPT LOGIC ==================== -->
   <script>
@@ -612,6 +649,16 @@
       fallosIdsSupabase: [],
       timelineFiltroBloque: 'all',
       timelineFiltroTema: 'all',
+      // Estado de gestión de preguntas
+      adminPreguntas: [],
+      adminFiltroBloque: 'all',
+      adminFiltroTema: 'all',
+      adminBusqueda: '',
+      adminPaginaActual: 1,
+      adminPorPagina: 10,
+      adminCargando: false,
+      previsualizacionExcel: null,
+      preguntaEnEdicion: null,
       metricas: {
         totalTests: 0,
         totalIntentos: 0,
@@ -874,6 +921,7 @@
         'home': document.getElementById('nav-btn-home'),
         'dashboard': document.getElementById('nav-btn-dashboard'),
         'test-center': document.getElementById('nav-btn-test-center'),
+        'admin-questions': document.getElementById('nav-btn-admin-questions'),
       };
       Object.keys(btns).forEach(k => {
         if (!btns[k]) return;
@@ -921,6 +969,13 @@
         html += `
           <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
           <span class="text-slate-900 font-semibold">Centro de Evaluación</span>
+        `;
+      } else if (view === 'admin-questions') {
+        html += `
+          <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-amber-600 font-semibold flex items-center gap-1">
+            <i data-lucide="database" class="w-3 h-3"></i> Gestión de Preguntas (Excel)
+          </span>
         `;
       } else if (view === 'test-runner') {
         html += `
@@ -980,6 +1035,9 @@
           break;
         case 'test-results':
           renderTestResults(viewport);
+          break;
+        case 'admin-questions':
+          renderAdminQuestions(viewport);
           break;
         default:
           renderHome(viewport);
@@ -1135,11 +1193,18 @@
                     <span>Centro de Tests</span>
                   </button>
                   <button 
+                    onclick="navigate('admin-questions')" 
+                    class="inline-flex items-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-amber-500/30 transition"
+                  >
+                    <i data-lucide="database" class="w-3.5 h-3.5 text-amber-300"></i>
+                    <span>Gestión Excel</span>
+                  </button>
+                  <button 
                     onclick="navigate('dashboard')" 
                     class="inline-flex items-center gap-2 bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition"
                   >
                     <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-indigo-400"></i>
-                    <span>Ver Métricas & Historial</span>
+                    <span>Métricas & Historial</span>
                   </button>
                 </div>
               </div>
@@ -2190,13 +2255,20 @@
     }
 
     function borrarHistorialTests() {
-      if (confirm("¿Estás seguro de que deseas reiniciar el histórico local de tests?")) {
-        localStorage.removeItem('oposicion_historial_sesiones');
-        localStorage.removeItem('oposicion_intentos_locales');
-        state.metricasCargadas = false;
-        state.historialPaginaActual = 1;
-        renderDashboard(document.getElementById('app-viewport'));
-      }
+      abrirModalConfirmacion({
+        titulo: "¿Reiniciar histórico de exámenes?",
+        mensaje: "Esta acción borrará todas las sesiones y métricas locales registradas en este navegador.",
+        textoConfirmar: "Reiniciar Histórico",
+        tipo: "peligro",
+        onConfirmar: () => {
+          localStorage.removeItem('oposicion_historial_sesiones');
+          localStorage.removeItem('oposicion_intentos_locales');
+          state.metricasCargadas = false;
+          state.historialPaginaActual = 1;
+          renderDashboard(document.getElementById('app-viewport'));
+          mostrarNotificacion("Histórico reiniciado correctamente.", "info");
+        }
+      });
     }
 
     function formatearTiempo(segundosTotales) {
@@ -3352,7 +3424,989 @@
       });
     }
 
-    // 21. INICIALIZACIÓN
+    // =========================================================================
+    // 21. ADMINISTRACIÓN DE PREGUNTAS (EXCEL IMPORT/EXPORT, CRUD Y PROMPT)
+    // =========================================================================
+
+    async function cargarPreguntasAdmin() {
+      state.adminCargando = true;
+      let preguntas = [];
+
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('preguntas')
+            .select('*')
+            .order('tema_num', { ascending: true });
+
+          if (!error && data) {
+            preguntas = data;
+          } else if (error) {
+            console.warn("Fallo cargando preguntas de Supabase en admin:", error);
+          }
+        } catch (e) {
+          console.warn("Error consultando preguntas en admin:", e);
+        }
+      }
+
+      if (preguntas.length === 0) {
+        preguntas = [...MOCK_PREGUNTAS];
+      }
+
+      state.adminPreguntas = preguntas;
+      state.adminCargando = false;
+    }
+
+    async function renderAdminQuestions(container) {
+      if (!state.adminPreguntas || state.adminPreguntas.length === 0) {
+        container.innerHTML = `
+          <div class="flex flex-col items-center justify-center p-12 text-slate-400 gap-2">
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-amber-500 border-t-transparent"></div>
+            <span class="text-xs">Cargando banco de preguntas...</span>
+          </div>
+        `;
+        await cargarPreguntasAdmin();
+      }
+
+      // Filtrado
+      let lista = [...(state.adminPreguntas || [])];
+      if (state.adminFiltroBloque !== 'all') {
+        const bId = Number(state.adminFiltroBloque);
+        lista = lista.filter(p => Number(p.bloque_id) === bId);
+      }
+      if (state.adminFiltroTema !== 'all') {
+        const tNum = Number(state.adminFiltroTema);
+        lista = lista.filter(p => Number(p.tema_num) === tNum);
+      }
+      if (state.adminBusqueda.trim() !== '') {
+        const q = state.adminBusqueda.toLowerCase().trim();
+        lista = lista.filter(p => 
+          (p.enunciado && p.enunciado.toLowerCase().includes(q)) ||
+          (p.explicacion && p.explicacion.toLowerCase().includes(q))
+        );
+      }
+
+      // Paginación
+      const totalFiltradas = lista.length;
+      const totalPaginas = Math.max(1, Math.ceil(totalFiltradas / state.adminPorPagina));
+      if (state.adminPaginaActual > totalPaginas) state.adminPaginaActual = totalPaginas;
+      if (state.adminPaginaActual < 1) state.adminPaginaActual = 1;
+
+      const indiceInicio = (state.adminPaginaActual - 1) * state.adminPorPagina;
+      const indiceFin = Math.min(indiceInicio + state.adminPorPagina, totalFiltradas);
+      const preguntasPaginadas = lista.slice(indiceInicio, indiceFin);
+
+      // Desplegable dinámico de temas según bloque seleccionado
+      let temasParaSelect = [];
+      if (state.adminFiltroBloque === 'all') {
+        temasParaSelect = TEMARIO.flatMap(b => b.temas);
+      } else {
+        const bloqueObj = TEMARIO.find(b => b.id === Number(state.adminFiltroBloque));
+        temasParaSelect = bloqueObj ? bloqueObj.temas : [];
+      }
+
+      container.innerHTML = `
+        <div class="space-y-6 animate-fadeIn">
+          
+          <!-- Encabezado -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+            <div>
+              <div class="inline-flex items-center gap-1.5 text-amber-600 text-xs font-bold uppercase tracking-wider mb-1">
+                <i data-lucide="database" class="w-3.5 h-3.5"></i> Gestión del Banco de Preguntas
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Administración & Excel</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Importa preguntas desde archivos Excel, expórtalas a .xlsx o edítalas sin escribir código SQL</p>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="flex flex-wrap items-center gap-2">
+              <button 
+                onclick="copiarPromptGemini()"
+                class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-sm transition active:scale-95"
+                title="Copiar prompt listo para que Gemini te genere el Excel con las preguntas"
+              >
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span id="btn-copiar-prompt-texto">Copiar Prompt para Gemini</span>
+              </button>
+
+              <button 
+                onclick="descargarPlantillaExcel()"
+                class="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold px-3.5 py-2 rounded-xl shadow-soft transition active:scale-95"
+                title="Descargar plantilla de Excel vacía con ejemplos"
+              >
+                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>Descargar Plantilla Excel</span>
+              </button>
+
+              <button 
+                onclick="exportarBancoAExcel()"
+                class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-sm transition active:scale-95"
+                title="Exportar todas las preguntas del campus a un archivo Excel .xlsx"
+              >
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Exportar Todo a Excel</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tarjeta de Importación de Excel -->
+          <div class="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-soft space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                  <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">Subir preguntas desde archivo Excel (.xlsx / .xls)</h3>
+                  <p class="text-xs text-slate-500">Carga el Excel generado por Gemini. Podrás revisar las preguntas antes de guardarlas en Supabase.</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-mono text-slate-400 bg-slate-50 border border-slate-200/60 px-2.5 py-1 rounded-lg">
+                Formatos: .xlsx, .xls, .csv
+              </span>
+            </div>
+
+            <!-- Zona Drag and Drop -->
+            <div 
+              id="drop-zone-excel"
+              ondragover="event.preventDefault(); this.classList.add('border-brand-500', 'bg-brand-50/20');"
+              ondragleave="this.classList.remove('border-brand-500', 'bg-brand-50/20');"
+              ondrop="handleDropExcel(event)"
+              class="border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-2xl p-6 text-center transition cursor-pointer bg-slate-50/50"
+              onclick="document.getElementById('input-file-excel').click()"
+            >
+              <input 
+                type="file" 
+                id="input-file-excel" 
+                accept=".xlsx, .xls, .csv" 
+                class="hidden" 
+                onchange="handleFileInputExcel(this.files)" 
+              />
+              <div class="space-y-2">
+                <i data-lucide="sheet" class="w-8 h-8 text-slate-400 mx-auto"></i>
+                <div class="text-xs text-slate-700">
+                  <span class="font-bold text-brand-600 hover:underline">Haz clic aquí para seleccionar el archivo</span> o arrástralo y suéltalo
+                </div>
+                <p class="text-[11px] text-slate-400">
+                  Columnas admitidas: <code>bloque_id</code>, <code>tema_num</code>, <code>enunciado</code>, <code>opcion_a</code>, <code>opcion_b</code>, <code>opcion_c</code>, <code>opcion_d</code>, <code>correcta</code> (0-3 o A-D), <code>explicacion</code>.
+                </p>
+              </div>
+            </div>
+
+            <!-- Contenedor de Previsualización antes de guardar -->
+            <div id="contenedor-previsualizacion-excel" class="hidden space-y-3 pt-3 border-t border-slate-100"></div>
+          </div>
+
+          <!-- Filtros de la Tabla de Preguntas -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-soft flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              
+              <!-- Buscador de texto -->
+              <div class="relative min-w-[220px]">
+                <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400"></i>
+                <input 
+                  type="text" 
+                  placeholder="Buscar en enunciados o explicaciones..." 
+                  value="${state.adminBusqueda}"
+                  oninput="state.adminBusqueda = this.value; state.adminPaginaActual = 1; renderAdminQuestions(document.getElementById('app-viewport'))"
+                  class="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition"
+                />
+              </div>
+
+              <!-- Filtro Bloque -->
+              <select 
+                onchange="state.adminFiltroBloque = this.value; state.adminFiltroTema = 'all'; state.adminPaginaActual = 1; renderAdminQuestions(document.getElementById('app-viewport'))"
+                class="bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-medium focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none"
+              >
+                <option value="all" ${state.adminFiltroBloque === 'all' ? 'selected' : ''}>Todos los bloques</option>
+                ${TEMARIO.map(b => `
+                  <option value="${b.id}" ${state.adminFiltroBloque === String(b.id) ? 'selected' : ''}>
+                    Bloque ${b.id}: ${b.nombre.substring(0, 24)}...
+                  </option>
+                `).join('')}
+              </select>
+
+              <!-- Filtro Tema -->
+              <select 
+                onchange="state.adminFiltroTema = this.value; state.adminPaginaActual = 1; renderAdminQuestions(document.getElementById('app-viewport'))"
+                class="bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-medium focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none"
+              >
+                <option value="all" ${state.adminFiltroTema === 'all' ? 'selected' : ''}>Todos los temas</option>
+                ${temasParaSelect.map(t => `
+                  <option value="${t.num}" ${state.adminFiltroTema === String(t.num) ? 'selected' : ''}>
+                    Tema ${t.num}: ${t.titulo.substring(0, 26)}...
+                  </option>
+                `).join('')}
+              </select>
+            </div>
+
+            <div class="text-xs font-semibold text-slate-500 flex items-center gap-2">
+              <span class="font-mono text-amber-700 bg-amber-50 border border-amber-200/70 px-2.5 py-1 rounded-lg">
+                Total: ${totalFiltradas} preguntas
+              </span>
+            </div>
+          </div>
+
+          <!-- Tabla de Preguntas (Vista Simplificada: Bloque, Tema y Enunciado) -->
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden">
+            ${preguntasPaginadas.length > 0 ? `
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-200/80 text-slate-400 font-semibold text-[11px] uppercase tracking-wider bg-slate-50/70">
+                      <th class="py-3.5 px-4 w-36">Bloque & Tema</th>
+                      <th class="py-3.5 px-4">Pregunta</th>
+                      <th class="py-3.5 px-4 w-28 text-right">Detalles</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${preguntasPaginadas.map((p) => {
+                      return `
+                        <tr 
+                          onclick="abrirModalEditarPregunta('${p.id}')" 
+                          class="hover:bg-amber-50/40 cursor-pointer transition group"
+                        >
+                          <td class="py-3.5 px-4 align-middle whitespace-nowrap">
+                            <span class="font-mono text-[11px] font-bold text-brand-700 bg-brand-50 border border-brand-200/80 rounded-lg px-2.5 py-1 inline-flex items-center gap-1.5 shadow-2xs">
+                              <span class="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
+                              Bloque ${p.bloque_id} • Tema ${p.tema_num}
+                            </span>
+                          </td>
+                          <td class="py-3.5 px-4 align-middle">
+                            <p class="font-semibold text-slate-800 group-hover:text-brand-600 transition leading-snug line-clamp-2">
+                              ${p.enunciado}
+                            </p>
+                          </td>
+                          <td class="py-3.5 px-4 align-middle text-right whitespace-nowrap" onclick="event.stopPropagation()">
+                            <div class="inline-flex items-center gap-1">
+                              <button 
+                                onclick="abrirModalEditarPregunta('${p.id}')"
+                                class="inline-flex items-center gap-1 px-2.5 py-1.5 text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl font-medium transition text-xs border border-slate-200/80 hover:border-brand-200 bg-white"
+                                title="Ver opciones, justificación y editar"
+                              >
+                                <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <span>Ver</span>
+                              </button>
+                              <button 
+                                onclick="pedirConfirmacionEliminarPregunta('${p.id}')"
+                                class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                                title="Eliminar pregunta"
+                              >
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Paginación -->
+              <div class="px-4 py-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                <div class="flex items-center gap-3">
+                  <span>
+                    Mostrando del <strong class="text-slate-800">${indiceInicio + 1}</strong> al <strong class="text-slate-800">${indiceFin}</strong> de <strong class="text-slate-800">${totalFiltradas}</strong> preguntas
+                  </span>
+                  <span class="text-slate-300">|</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-slate-400 text-[11px]">Por página:</span>
+                    <select 
+                      onchange="state.adminPorPagina = parseInt(this.value, 10); state.adminPaginaActual = 1; renderAdminQuestions(document.getElementById('app-viewport'))"
+                      class="bg-slate-50 border border-slate-200 text-slate-700 rounded-lg px-2 py-1 text-xs outline-none focus:border-amber-500"
+                    >
+                      <option value="10" ${state.adminPorPagina === 10 ? 'selected' : ''}>10</option>
+                      <option value="25" ${state.adminPorPagina === 25 ? 'selected' : ''}>25</option>
+                      <option value="50" ${state.adminPorPagina === 50 ? 'selected' : ''}>50</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 font-medium">
+                  <button 
+                    onclick="state.adminPaginaActual--; renderAdminQuestions(document.getElementById('app-viewport'))"
+                    ${state.adminPaginaActual <= 1 ? 'disabled class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition active:scale-95 shadow-sm"'}
+                  >
+                    <i data-lucide="chevron-left" class="w-3.5 h-3.5 inline mr-1"></i> Anterior
+                  </button>
+
+                  <div class="px-3 py-1 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-mono text-[11px] font-semibold">
+                    ${state.adminPaginaActual} / ${totalPaginas}
+                  </div>
+
+                  <button 
+                    onclick="state.adminPaginaActual++; renderAdminQuestions(document.getElementById('app-viewport'))"
+                    ${state.adminPaginaActual >= totalPaginas ? 'disabled class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition active:scale-95 shadow-sm"'}
+                  >
+                    Siguiente <i data-lucide="chevron-right" class="w-3.5 h-3.5 inline ml-1"></i>
+                  </button>
+                </div>
+              </div>
+            ` : `
+              <div class="py-12 text-center text-slate-400 space-y-2">
+                <i data-lucide="inbox" class="w-8 h-8 mx-auto text-slate-300"></i>
+                <p class="text-xs">No se encontraron preguntas con los filtros aplicados.</p>
+              </div>
+            `}
+          </div>
+
+          <!-- MODAL DE DETALLE Y EDICIÓN COMPLETA DE PREGUNTA -->
+          <div id="modal-editar-pregunta" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+            <div class="bg-white w-full max-w-2xl rounded-3xl border border-slate-200 shadow-floating flex flex-col max-h-[92vh] overflow-hidden animate-fadeIn">
+              <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-slate-900">Detalles & Edición de Pregunta</h3>
+                    <p class="text-[11px] text-slate-500">Consulta las opciones, respuesta correcta, justificación y métricas</p>
+                  </div>
+                </div>
+                <button onclick="cerrarModalEditarPregunta()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-200/60 transition">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <div class="p-6 overflow-y-auto space-y-4" id="modal-editar-pregunta-cuerpo"></div>
+
+              <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between bg-slate-50/60">
+                <button 
+                  id="btn-modal-eliminar-pregunta"
+                  class="text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-1.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition"
+                >
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  <span>Eliminar Pregunta</span>
+                </button>
+                <div class="flex items-center gap-2">
+                  <button onclick="cerrarModalEditarPregunta()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+                    Cerrar
+                  </button>
+                  <button onclick="guardarEdicionPregunta()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5">
+                    <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                    <span>Guardar Cambios</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toast Notificación Flotante (Reemplazo accesible de alert) -->
+          <div id="toast-notificacion-admin" class="fixed bottom-6 right-6 z-50 hidden max-w-sm px-4 py-3 rounded-2xl shadow-floating text-xs font-medium flex items-center gap-2.5 transition-all"></div>
+
+        </div>
+      `;
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+      }
+      lucide.createIcons();
+    }
+
+    // Modal de Confirmación Global
+    let callbackConfirmacionActual = null;
+
+    function abrirModalConfirmacion({ titulo, mensaje, textoConfirmar = "Confirmar", tipo = "peligro", onConfirmar }) {
+      const modal = document.getElementById('modal-confirmacion-global');
+      const elTitulo = document.getElementById('confirm-modal-titulo');
+      const elMensaje = document.getElementById('confirm-modal-mensaje');
+      const btnAccion = document.getElementById('confirm-modal-btn-accion');
+      const iconContainer = document.getElementById('confirm-modal-icon-container');
+
+      if (!modal) {
+        if (typeof onConfirmar === 'function') onConfirmar();
+        return;
+      }
+
+      if (elTitulo) elTitulo.textContent = titulo;
+      if (elMensaje) elMensaje.textContent = mensaje;
+      if (btnAccion) {
+        const spanTxt = btnAccion.querySelector('span');
+        if (spanTxt) spanTxt.textContent = textoConfirmar;
+        if (tipo === 'peligro') {
+          btnAccion.className = "px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5";
+          if (iconContainer) iconContainer.className = "w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0";
+        } else {
+          btnAccion.className = "px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5";
+          if (iconContainer) iconContainer.className = "w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0";
+        }
+      }
+
+      callbackConfirmacionActual = onConfirmar;
+      btnAccion.onclick = () => {
+        cerrarModalConfirmacion();
+        if (typeof callbackConfirmacionActual === 'function') {
+          callbackConfirmacionActual();
+          callbackConfirmacionActual = null;
+        }
+      };
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function cerrarModalConfirmacion() {
+      const modal = document.getElementById('modal-confirmacion-global');
+      if (modal) modal.classList.add('hidden');
+      callbackConfirmacionActual = null;
+    }
+
+    function pedirConfirmacionEliminarPregunta(id) {
+      const p = (state.adminPreguntas || []).find(x => String(x.id) === String(id));
+      const extracto = p && p.enunciado ? (p.enunciado.length > 80 ? p.enunciado.substring(0, 80) + '...' : p.enunciado) : `ID: ${id}`;
+
+      abrirModalConfirmacion({
+        titulo: "¿Eliminar esta pregunta?",
+        mensaje: `¿Estás seguro de que deseas eliminar permanentemente esta pregunta?\n\n"${extracto}"`,
+        textoConfirmar: "Sí, eliminar pregunta",
+        tipo: "peligro",
+        onConfirmar: () => eliminarPreguntaAdmin(id)
+      });
+    }
+
+    // Helper de Notificaciones Visuales Global (Persistente)
+    let toastTimeoutGlobal = null;
+    function mostrarNotificacion(mensaje, tipo = 'info') {
+      const toast = document.getElementById('toast-notificacion-global');
+      if (!toast) return;
+
+      const estilos = {
+        exito: 'bg-emerald-950 text-emerald-100 border border-emerald-800 shadow-emerald-950/30',
+        error: 'bg-rose-950 text-rose-100 border border-rose-800 shadow-rose-950/30',
+        info: 'bg-slate-900 text-slate-100 border border-slate-700 shadow-slate-950/30',
+        alerta: 'bg-amber-950 text-amber-100 border border-amber-800 shadow-amber-950/30'
+      };
+
+      const iconos = {
+        exito: '<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>',
+        error: '<i data-lucide="alert-circle" class="w-4 h-4 text-rose-400 shrink-0"></i>',
+        info: '<i data-lucide="info" class="w-4 h-4 text-brand-400 shrink-0"></i>',
+        alerta: '<i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 shrink-0"></i>'
+      };
+
+      toast.className = `fixed bottom-6 right-6 z-50 max-w-sm px-4 py-3 rounded-2xl shadow-floating text-xs font-medium flex items-center gap-2.5 transition-all ${estilos[tipo] || estilos.info}`;
+      toast.innerHTML = `${iconos[tipo] || iconos.info} <span>${mensaje}</span>`;
+      toast.classList.remove('hidden');
+      lucide.createIcons();
+
+      if (toastTimeoutGlobal) clearTimeout(toastTimeoutGlobal);
+      toastTimeoutGlobal = setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+
+    // =========================================================================
+    // 22. FUNCIONES DE IMPORTACIÓN / EXPORTACIÓN DE EXCEL
+    // =========================================================================
+
+    function descargarPlantillaExcel() {
+      if (typeof XLSX === 'undefined') {
+        mostrarNotificacion("La librería de Excel no se ha cargado correctamente.", "error");
+        return;
+      }
+
+      const filasPlantilla = [
+        {
+          bloque_id: 1,
+          tema_num: 1,
+          enunciado: "¿Cuál de las siguientes afirmaciones respecto a la reforma de la Constitución Española de 1978 es correcta según el artículo 168?",
+          opcion_a: "Exige la aprobación por mayoría de tres quintos de cada Cámara.",
+          opcion_b: "Requiere la aprobación del principio por mayoría de dos tercios de cada Cámara y la disolución inmediata de las Cortes.",
+          opcion_c: "Se aplica cuando se propone una revisión que afecte exclusivamente al Título VIII.",
+          opcion_d: "El referéndum de ratificación es potestativo para el Gobierno.",
+          correcta: "B",
+          explicacion: "El art. 168 CE regula la reforma agravada con mayoría de 2/3 y disolución de las Cámaras."
+        },
+        {
+          bloque_id: 3,
+          tema_num: 38,
+          enunciado: "Si la elasticidad precio cruzada de la demanda entre dos bienes X e Y es estrictamente positiva, ambos bienes son:",
+          opcion_a: "Bienes complementarios.",
+          opcion_b: "Bienes sustitutivos.",
+          opcion_c: "Bienes inferiores.",
+          opcion_d: "Bienes de Giffen independientes.",
+          correcta: "B",
+          explicacion: "Una elasticidad cruzada positiva indica que el aumento del precio de Y aumenta la cantidad demandada de X."
+        }
+      ];
+
+      const ws = XLSX.utils.json_to_sheet(filasPlantilla);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Preguntas");
+      XLSX.writeFile(wb, "Plantilla_Preguntas_Oposicion_A2.xlsx");
+    }
+
+    function exportarBancoAExcel() {
+      if (typeof XLSX === 'undefined') {
+        mostrarNotificacion("La librería de Excel no se ha cargado correctamente.", "error");
+        return;
+      }
+
+      const preguntas = state.adminPreguntas || [];
+      if (preguntas.length === 0) {
+        mostrarNotificacion("No hay preguntas para exportar en este momento.", "info");
+        return;
+      }
+
+      const filasExportar = preguntas.map(p => {
+        const opc = Array.isArray(p.opciones) ? p.opciones : [];
+        const letra = ['A', 'B', 'C', 'D'][p.correcta] || 'A';
+
+        return {
+          id: p.id,
+          bloque_id: p.bloque_id,
+          tema_num: p.tema_num,
+          enunciado: p.enunciado,
+          opcion_a: opc[0] || '',
+          opcion_b: opc[1] || '',
+          opcion_c: opc[2] || '',
+          opcion_d: opc[3] || '',
+          correcta: letra,
+          explicacion: p.explicacion || '',
+          veces_mostrada: p.veces_mostrada || 0
+        };
+      });
+
+      const ws = XLSX.utils.json_to_sheet(filasExportar);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Banco_Preguntas");
+      XLSX.writeFile(wb, `Banco_Preguntas_A2_Estadistica_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+
+    function copiarPromptGemini() {
+      const promptTexto = `Actúa como un preparador experto de la oposición al Cuerpo de Diplomados en Estadística del Estado (Subgrupo A2).
+Genera una tabla de preguntas tipo test de examen oficial con 4 opciones (A, B, C, D) para el Bloque [INDICAR BLOQUE] y Tema [INDICAR TEMA].
+
+IMPORTANTE: Devuelve la respuesta en formato de tabla para copiar directamente a Excel con las siguientes columnas exactas:
+1. bloque_id (número del 1 al 6)
+2. tema_num (número del 1 al 65)
+3. enunciado (texto de la pregunta con fórmulas LaTeX si aplica)
+4. opcion_a (texto de la opción A sin el prefijo "A)")
+5. opcion_b (texto de la opción B sin el prefijo "B)")
+6. opcion_c (texto de la opción C sin el prefijo "C)")
+7. opcion_d (texto de la opción D sin el prefijo "D)")
+8. correcta (únicamente la letra en mayúscula: A, B, C o D)
+9. explicacion (justificación oficial con artículo legal, definición o demostración matemática)`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(promptTexto);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = promptTexto;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+
+      const txtBtn = document.getElementById('btn-copiar-prompt-texto');
+      if (txtBtn) {
+        const orig = txtBtn.textContent;
+        txtBtn.textContent = '¡Copiado al portapapeles!';
+        setTimeout(() => { txtBtn.textContent = orig; }, 2500);
+      }
+    }
+
+    function handleDropExcel(event) {
+      event.preventDefault();
+      const dropZone = document.getElementById('drop-zone-excel');
+      if (dropZone) dropZone.classList.remove('border-brand-500', 'bg-brand-50/20');
+      if (event.dataTransfer && event.dataTransfer.files) {
+        handleFileInputExcel(event.dataTransfer.files);
+      }
+    }
+
+    function handleFileInputExcel(files) {
+      if (!files || files.length === 0) return;
+      const file = files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonFilas = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+          procesarFilasExcelImportadas(jsonFilas);
+        } catch (err) {
+          mostrarNotificacion("Error leyendo el archivo Excel: " + err.message, "error");
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    function mapearLetraOpcionAIndice(val) {
+      if (typeof val === 'number') return val >= 0 && val <= 3 ? val : 0;
+      const str = String(val).trim().toUpperCase();
+      if (str === 'A' || str === '0') return 0;
+      if (str === 'B' || str === '1') return 1;
+      if (str === 'C' || str === '2') return 2;
+      if (str === 'D' || str === '3') return 3;
+      return 0;
+    }
+
+    function procesarFilasExcelImportadas(filas) {
+      if (!filas || filas.length === 0) {
+        mostrarNotificacion("El archivo Excel no contiene filas o datos legibles.", "error");
+        return;
+      }
+
+      const normalizadas = [];
+      filas.forEach((f, idx) => {
+        // Normalizar nombres de columnas ignorando mayúsculas o espacios
+        const fNorm = {};
+        Object.keys(f).forEach(k => {
+          const cleanK = k.toLowerCase().trim().replace(/[\s\-_]+/g, '_');
+          fNorm[cleanK] = f[k];
+        });
+
+        const enunciado = fNorm['enunciado'] || fNorm['pregunta'] || fNorm['question'] || '';
+        if (!enunciado) return; // Fila vacía
+
+        const opcionA = String(fNorm['opcion_a'] || fNorm['a'] || fNorm['opciona'] || '').trim();
+        const opcionB = String(fNorm['opcion_b'] || fNorm['b'] || fNorm['opcionb'] || '').trim();
+        const opcionC = String(fNorm['opcion_c'] || fNorm['c'] || fNorm['opcionc'] || '').trim();
+        const opcionD = String(fNorm['opcion_d'] || fNorm['d'] || fNorm['opciond'] || '').trim();
+
+        const opciones = [opcionA, opcionB, opcionC, opcionD].filter(Boolean);
+        if (opciones.length < 2) return; // Mínimo 2 opciones
+
+        const correctaRaw = fNorm['correcta'] || fNorm['correct'] || fNorm['solucion'] || 0;
+        const indiceCorrecta = mapearLetraOpcionAIndice(correctaRaw);
+
+        let bloqueId = parseInt(fNorm['bloque_id'] || fNorm['bloque'] || 1, 10);
+        let temaNum = parseInt(fNorm['tema_num'] || fNorm['tema'] || 1, 10);
+
+        if (isNaN(bloqueId) || bloqueId < 1 || bloqueId > 6) bloqueId = 1;
+        if (isNaN(temaNum) || temaNum < 1 || temaNum > 65) temaNum = 1;
+
+        const explicacion = String(fNorm['explicacion'] || fNorm['justificacion'] || fNorm['explicación'] || '').trim();
+
+        normalizadas.push({
+          bloque_id: bloqueId,
+          tema_num: temaNum,
+          enunciado: String(enunciado).trim(),
+          opciones: [opcionA, opcionB, opcionC, opcionD],
+          correcta: indiceCorrecta,
+          explicacion: explicacion,
+          veces_mostrada: 0
+        });
+      });
+
+      if (normalizadas.length === 0) {
+        mostrarNotificacion("No se encontraron preguntas válidas. Verifica las cabeceras del archivo.", "error");
+        return;
+      }
+
+      state.previsualizacionExcel = normalizadas;
+      mostrarPrevisualizacionImportacion();
+    }
+
+    function mostrarPrevisualizacionImportacion() {
+      const cont = document.getElementById('contenedor-previsualizacion-excel');
+      if (!cont) return;
+
+      const preguntas = state.previsualizacionExcel || [];
+
+      cont.innerHTML = `
+        <div class="bg-amber-50/70 border border-amber-200/90 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+              <h4 class="text-xs font-bold text-amber-900">
+                Se han detectado ${preguntas.length} preguntas listas para importar
+              </h4>
+            </div>
+            <div class="flex items-center gap-2">
+              <button 
+                onclick="cancelarPrevisualizacionExcel()"
+                class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold rounded-xl"
+              >
+                Descartar
+              </button>
+              <button 
+                onclick="guardarPreguntasExcelEnSupabase()"
+                class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition active:scale-95 flex items-center gap-1.5"
+              >
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                <span>Confirmar y Guardar en Supabase</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Muestra de las 3 primeras preguntas -->
+          <div class="max-h-48 overflow-y-auto space-y-2 pr-1">
+            ${preguntas.slice(0, 3).map((p, i) => `
+              <div class="bg-white p-3 rounded-xl border border-amber-200/70 text-xs space-y-1">
+                <div class="flex items-center justify-between text-[10px] font-mono font-bold text-slate-500">
+                  <span>Bloque ${p.bloque_id} • Tema ${p.tema_num}</span>
+                  <span class="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Correcta: ${['A', 'B', 'C', 'D'][p.correcta]}</span>
+                </div>
+                <p class="font-semibold text-slate-900 line-clamp-1">${p.enunciado}</p>
+              </div>
+            `).join('')}
+            ${preguntas.length > 3 ? `
+              <p class="text-[11px] text-slate-500 italic text-center">+ ${preguntas.length - 3} preguntas adicionales listas</p>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      cont.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function cancelarPrevisualizacionExcel() {
+      state.previsualizacionExcel = null;
+      const cont = document.getElementById('contenedor-previsualizacion-excel');
+      if (cont) {
+        cont.innerHTML = '';
+        cont.classList.add('hidden');
+      }
+      const inp = document.getElementById('input-file-excel');
+      if (inp) inp.value = '';
+    }
+
+    async function guardarPreguntasExcelEnSupabase() {
+      const preguntas = state.previsualizacionExcel || [];
+      if (preguntas.length === 0) return;
+
+      if (!supabaseClient) {
+        // Fallback local
+        MOCK_PREGUNTAS.push(...preguntas.map((p, i) => ({ ...p, id: 'local-' + Date.now() + '-' + i })));
+        mostrarNotificacion(`Guardadas ${preguntas.length} preguntas localmente.`, "exito");
+        cancelarPrevisualizacionExcel();
+        await cargarPreguntasAdmin();
+        detectarTemasConPreguntas();
+        renderAdminQuestions(document.getElementById('app-viewport'));
+        return;
+      }
+
+      try {
+        const payload = preguntas.map(p => ({
+          bloque_id: p.bloque_id,
+          tema_num: p.tema_num,
+          enunciado: p.enunciado,
+          opciones: p.opciones,
+          correcta: p.correcta,
+          explicacion: p.explicacion,
+          veces_mostrada: 0
+        }));
+
+        const { error } = await supabaseClient
+          .from('preguntas')
+          .insert(payload);
+
+        if (error) throw error;
+
+        mostrarNotificacion(`¡Éxito! Se han importado ${preguntas.length} preguntas en Supabase.`, "exito");
+        cancelarPrevisualizacionExcel();
+        await cargarPreguntasAdmin();
+        detectarTemasConPreguntas();
+        renderAdminQuestions(document.getElementById('app-viewport'));
+      } catch (err) {
+        mostrarNotificacion("Error guardando en Supabase: " + err.message, "error");
+      }
+    }
+
+    // =========================================================================
+    // 23. EDICIÓN Y BORRADO MANUAL DE PREGUNTAS (VISTA DETALLADA)
+    // =========================================================================
+
+    function abrirModalEditarPregunta(id) {
+      const pregunta = (state.adminPreguntas || []).find(p => String(p.id) === String(id));
+      if (!pregunta) return;
+
+      state.preguntaEnEdicion = pregunta;
+      const modal = document.getElementById('modal-editar-pregunta');
+      const cuerpo = document.getElementById('modal-editar-pregunta-cuerpo');
+      const btnEliminar = document.getElementById('btn-modal-eliminar-pregunta');
+      if (!modal || !cuerpo) return;
+
+      if (btnEliminar) {
+        btnEliminar.onclick = () => pedirConfirmacionEliminarPregunta(pregunta.id);
+      }
+
+      const opc = Array.isArray(pregunta.opciones) ? pregunta.opciones : ['', '', '', ''];
+
+      cuerpo.innerHTML = `
+        <!-- Metadatos de la pregunta -->
+        <div class="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-600">ID:</span>
+            <code class="font-mono text-[11px] text-slate-500 bg-white border border-slate-200 px-1.5 py-0.5 rounded-md truncate max-w-[140px]">${pregunta.id}</code>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md font-semibold">
+              Mostrada: ${pregunta.veces_mostrada || 0} veces
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Bloque Oficial (1-6)</label>
+            <input 
+              type="number" 
+              min="1" 
+              max="6" 
+              id="edit-bloque-id" 
+              value="${pregunta.bloque_id || 1}" 
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 outline-none focus:border-brand-500 font-mono"
+            />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tema Numérico (1-65)</label>
+            <input 
+              type="number" 
+              min="1" 
+              max="65" 
+              id="edit-tema-num" 
+              value="${pregunta.tema_num || 1}" 
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 outline-none focus:border-brand-500 font-mono"
+            />
+          </div>
+        </div>
+
+        <div class="text-xs space-y-1">
+          <label class="block font-bold text-slate-700">Enunciado de la Pregunta</label>
+          <textarea 
+            id="edit-enunciado" 
+            rows="3" 
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-brand-500 leading-relaxed font-sans text-xs"
+          >${pregunta.enunciado || ''}</textarea>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-slate-700">Opciones de Respuesta & Opción Correcta</label>
+            <span class="text-[11px] text-slate-400">Marca el botón de radio de la respuesta correcta</span>
+          </div>
+          ${['A', 'B', 'C', 'D'].map((letra, idx) => `
+            <div class="flex items-center gap-2 p-1.5 rounded-xl border ${pregunta.correcta === idx ? 'border-emerald-300 bg-emerald-50/40' : 'border-slate-200 bg-slate-50'}">
+              <input 
+                type="radio" 
+                name="edit-radio-correcta" 
+                id="edit-radio-${idx}" 
+                value="${idx}" 
+                ${pregunta.correcta === idx ? 'checked' : ''} 
+                class="accent-emerald-600 w-4 h-4 ml-1"
+              />
+              <span class="font-mono font-bold ${pregunta.correcta === idx ? 'text-emerald-800' : 'text-slate-600'} w-5">${letra})</span>
+              <input 
+                type="text" 
+                id="edit-opcion-${idx}" 
+                value="${opc[idx] || ''}" 
+                class="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:border-brand-500 text-xs"
+              />
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="text-xs space-y-1">
+          <label class="block font-bold text-slate-700">Justificación Oficial / Explicación</label>
+          <textarea 
+            id="edit-explicacion" 
+            rows="3" 
+            class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-brand-500 leading-relaxed font-sans text-xs"
+            placeholder="Añade artículo de ley o demostración matemática..."
+          >${pregunta.explicacion || ''}</textarea>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function cerrarModalEditarPregunta() {
+      const modal = document.getElementById('modal-editar-pregunta');
+      if (modal) modal.classList.add('hidden');
+      state.preguntaEnEdicion = null;
+    }
+
+    async function guardarEdicionPregunta() {
+      if (!state.preguntaEnEdicion) return;
+
+      const pId = state.preguntaEnEdicion.id;
+      const bId = parseInt(document.getElementById('edit-bloque-id').value, 10);
+      const tNum = parseInt(document.getElementById('edit-tema-num').value, 10);
+      const enunciado = document.getElementById('edit-enunciado').value.trim();
+      const opcA = document.getElementById('edit-opcion-0').value.trim();
+      const opcB = document.getElementById('edit-opcion-1').value.trim();
+      const opcC = document.getElementById('edit-opcion-2').value.trim();
+      const opcD = document.getElementById('edit-opcion-3').value.trim();
+      const explicacion = document.getElementById('edit-explicacion').value.trim();
+
+      const radioCorrecta = document.querySelector('input[name="edit-radio-correcta"]:checked');
+      const correcta = radioCorrecta ? parseInt(radioCorrecta.value, 10) : 0;
+
+      const opciones = [opcA, opcB, opcC, opcD];
+
+      if (supabaseClient && !String(pId).startsWith('mock-') && !String(pId).startsWith('local-')) {
+        try {
+          const { error } = await supabaseClient
+            .from('preguntas')
+            .update({
+              bloque_id: bId,
+              tema_num: tNum,
+              enunciado: enunciado,
+              opciones: opciones,
+              correcta: correcta,
+              explicacion: explicacion
+            })
+            .eq('id', pId);
+
+          if (error) throw error;
+        } catch (e) {
+          mostrarNotificacion("Error actualizando en Supabase: " + e.message, "error");
+          return;
+        }
+      }
+
+      // Actualizar en memoria
+      const match = state.adminPreguntas.find(p => String(p.id) === String(pId));
+      if (match) {
+        match.bloque_id = bId;
+        match.tema_num = tNum;
+        match.enunciado = enunciado;
+        match.opciones = opciones;
+        match.correcta = correcta;
+        match.explicacion = explicacion;
+      }
+
+      cerrarModalEditarPregunta();
+      mostrarNotificacion("Pregunta actualizada con éxito.", "exito");
+      detectarTemasConPreguntas();
+      renderAdminQuestions(document.getElementById('app-viewport'));
+    }
+
+    async function eliminarPreguntaAdmin(id) {
+      if (supabaseClient && !String(id).startsWith('mock-') && !String(id).startsWith('local-')) {
+        try {
+          const { error } = await supabaseClient
+            .from('preguntas')
+            .delete()
+            .eq('id', id);
+
+          if (error) throw error;
+        } catch (e) {
+          mostrarNotificacion("Error eliminando en Supabase: " + e.message, "error");
+          return;
+        }
+      }
+
+      state.adminPreguntas = state.adminPreguntas.filter(p => String(p.id) !== String(id));
+      cerrarModalEditarPregunta();
+      detectarTemasConPreguntas();
+      renderAdminQuestions(document.getElementById('app-viewport'));
+      mostrarNotificacion("Pregunta eliminada correctamente.", "exito");
+    }
+
+    // 24. INICIALIZACIÓN
     window.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
