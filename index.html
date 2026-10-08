@@ -314,12 +314,12 @@
     }
 
     // 2. DETECCIÓN AUTOMÁTICA DE ARCHIVOS MARKDOWN (.md)
-    // Semilla inicial con los temas que tienes en el repositorio (incluyendo el Tema 51)
+    // Semilla inicial confirmada con los temas existentes en el repositorio
     const TEMAS_CON_MARKDOWN = new Set([1, 2, 38, 39, 50, 51]);
 
     function esTemaDisponible(temaNum) {
       const n = Number(temaNum);
-      return TEMAS_CON_MARKDOWN.has(n) || (state && state.temasConPreguntas && state.temasConPreguntas.has(n));
+      return TEMAS_CON_MARKDOWN.has(n);
     }
 
     function obtenerTotalTemasDisponibles() {
@@ -332,7 +332,19 @@
       return count;
     }
 
-    // Sonda automática: comprueba por fetch si existen los archivos Tema_X.md en sus carpetas
+    // Helper para determinar si una respuesta es un Markdown real o el fallback de Cloudflare (index.html)
+    function esContenidoMarkdownValido(texto, contentType = '') {
+      if (!texto || typeof texto !== 'string') return false;
+      const t = texto.trim().toLowerCase();
+      // Si Cloudflare Pages o un router SPA devuelve index.html con status 200
+      if (contentType.includes('text/html')) return false;
+      if (t.startsWith('<!doctype html') || t.startsWith('<html') || t.includes('<head>') || t.includes('id="app-viewport"')) {
+        return false;
+      }
+      return t.length > 20; // Un apunte real tiene contenido sustancial
+    }
+
+    // Sonda automática compatible con Cloudflare Pages
     async function detectarArchivosMarkdownExistentes() {
       const checks = [];
       TEMARIO.forEach(bloque => {
@@ -348,13 +360,17 @@
         ];
         for (const ruta of rutas) {
           try {
-            let res = await fetch(ruta, { method: 'HEAD' });
-            if (res.status === 405) {
-              res = await fetch(ruta, { method: 'GET' });
-            }
+            const res = await fetch(ruta, { method: 'GET' });
             if (res.ok) {
-              TEMAS_CON_MARKDOWN.add(num);
-              return;
+              const contentType = res.headers.get('content-type') || '';
+              // Si el servidor indica explícitamente HTML, es el fallback SPA
+              if (contentType.includes('text/html')) continue;
+              
+              const texto = await res.text();
+              if (esContenidoMarkdownValido(texto, contentType)) {
+                TEMAS_CON_MARKDOWN.add(num);
+                return;
+              }
             }
           } catch (e) {
             // El archivo no existe o no responde
@@ -1466,12 +1482,17 @@
         try {
           const res = await fetch(ruta);
           if (res.ok) {
+            const contentType = res.headers.get('content-type') || '';
             const markdown = await res.text();
-            visor.innerHTML = marked.parse(markdown);
-            if (window.MathJax && window.MathJax.typesetPromise) {
-              window.MathJax.typesetPromise([visor]);
+
+            // Bloquear inyección si Cloudflare sirvió index.html por error
+            if (esContenidoMarkdownValido(markdown, contentType)) {
+              visor.innerHTML = marked.parse(markdown);
+              if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([visor]);
+              }
+              return;
             }
-            return;
           }
         } catch (e) {}
       }
@@ -1483,7 +1504,7 @@
           </div>
           <h3 class="text-sm font-bold text-slate-800">Apuntes pendientes de incorporación física</h3>
           <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-            Puedes incorporar el archivo <code>${carpeta}/Tema_${temaNum}.md</code> en tu proyecto para leer los apuntes o practicar directamente con los tests.
+            El archivo <code>${carpeta}/Tema_${temaNum}.md</code> aún no está disponible en el servidor.
           </p>
           <button 
             onclick="lanzarTestTema(${temaNum})"
