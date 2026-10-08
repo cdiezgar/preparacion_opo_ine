@@ -243,7 +243,7 @@
     <!-- Navegación de Bloques -->
     <div class="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
       <span>Bloques & Apuntes</span>
-      <span class="text-[10px] text-emerald-300 bg-emerald-950/70 border border-emerald-800/50 px-2 py-0.5 rounded-full font-mono">5 redactados</span>
+      <span id="badge-temas-redactados" class="text-[10px] text-emerald-300 bg-emerald-950/70 border border-emerald-800/50 px-2 py-0.5 rounded-full font-mono">6 redactados</span>
     </div>
     <div class="flex-1 overflow-y-auto px-3 py-2 space-y-1.5" id="bloques-tree"></div>
 
@@ -313,10 +313,70 @@
       console.warn("Supabase en modo fallback mock:", e);
     }
 
-    // 2. TEMAS DISPONIBLES REALES EN EL REPOSITORIO
-    const TEMAS_DISPONIBLES = new Set([1, 2, 38, 39, 50]);
+    // 2. DETECCIÓN AUTOMÁTICA DE ARCHIVOS MARKDOWN (.md)
+    // Semilla inicial con los temas que tienes en el repositorio (incluyendo el Tema 51)
+    const TEMAS_CON_MARKDOWN = new Set([1, 2, 38, 39, 50, 51]);
+
     function esTemaDisponible(temaNum) {
-      return TEMAS_DISPONIBLES.has(Number(temaNum));
+      const n = Number(temaNum);
+      return TEMAS_CON_MARKDOWN.has(n) || (state && state.temasConPreguntas && state.temasConPreguntas.has(n));
+    }
+
+    function obtenerTotalTemasDisponibles() {
+      let count = 0;
+      TEMARIO.forEach(b => {
+        b.temas.forEach(t => {
+          if (esTemaDisponible(t.num)) count++;
+        });
+      });
+      return count;
+    }
+
+    // Sonda automática: comprueba por fetch si existen los archivos Tema_X.md en sus carpetas
+    async function detectarArchivosMarkdownExistentes() {
+      const checks = [];
+      TEMARIO.forEach(bloque => {
+        bloque.temas.forEach(tema => {
+          checks.push({ num: tema.num, carpeta: bloque.carpeta });
+        });
+      });
+
+      const promesas = checks.map(async ({ num, carpeta }) => {
+        const rutas = [
+          `${carpeta}/Tema_${num}.md`,
+          `${carpeta}/tema_${num}.md`
+        ];
+        for (const ruta of rutas) {
+          try {
+            let res = await fetch(ruta, { method: 'HEAD' });
+            if (res.status === 405) {
+              res = await fetch(ruta, { method: 'GET' });
+            }
+            if (res.ok) {
+              TEMAS_CON_MARKDOWN.add(num);
+              return;
+            }
+          } catch (e) {
+            // El archivo no existe o no responde
+          }
+        }
+      });
+
+      await Promise.allSettled(promesas);
+
+      // Actualizar contadores y vistas
+      const badge = document.getElementById('badge-temas-redactados');
+      if (badge) badge.textContent = `${obtenerTotalTemasDisponibles()} redactados`;
+
+      renderSidebarAccordion();
+
+      if (state.currentView === 'home') {
+        const vp = document.getElementById('app-viewport');
+        if (vp) renderHome(vp);
+      } else if (state.currentView === 'test-center') {
+        const vp = document.getElementById('app-viewport');
+        if (vp) renderTestCenter(vp);
+      }
     }
 
     // 3. PROGRAMA OFICIAL COMPLETO (65 TEMAS EN 6 BLOQUES)
@@ -450,6 +510,7 @@
           "D) El referéndum de ratificación es potestativo para el Gobierno."
         ],
         correcta: 1,
+        veces_mostrada: 0,
         explicacion: "El art. 168 CE regula la reforma agravada: exige aprobación del principio por 2/3 de cada Cámara, disolución inmediata, ratificación por las nuevas Cámaras, aprobación por 2/3 y referéndum preceptivo."
       },
       {
@@ -464,6 +525,7 @@
           "D) El Tribunal Constitucional previa terna del Congreso."
         ],
         correcta: 1,
+        veces_mostrada: 0,
         explicacion: "El art. 54 de la Constitución determina que el Defensor del Pueblo es designado por las Cortes Generales como su alto comisionado."
       },
       {
@@ -478,6 +540,7 @@
           "D) Bienes de Giffen independientes."
         ],
         correcta: 1,
+        veces_mostrada: 0,
         explicacion: "Una elasticidad cruzada positiva implica que al aumentar el precio del bien Y, la demanda del bien X se incrementa; se trata por tanto de bienes sustitutivos."
       },
       {
@@ -492,6 +555,7 @@
           "D) La curva de demanda es completamente vertical e inelástica."
         ],
         correcta: 0,
+        veces_mostrada: 0,
         explicacion: "A largo plazo en competencia perfecta la libre entrada y salida de empresas conduce a $P = CMg = CMe_{min}$, disipando cualquier beneficio extraordinario."
       },
       {
@@ -506,6 +570,7 @@
           "D) Ninguno de los dos incluye a residentes de nacionalidad extranjera."
         ],
         correcta: 1,
+        veces_mostrada: 0,
         explicacion: "El Padrón es un registro administrativo continuo gestionado por los Ayuntamientos. El Censo es una operación estadística oficial del INE regida por el secreto estadístico."
       }
     ];
@@ -525,6 +590,8 @@
       metricasCargadas: false,
       temasConPreguntas: new Map(),
       historyFilter: 'all',
+      historialPaginaActual: 1,
+      historialPorPagina: 10,
       sesionesHistorial: [],
       fallosIdsSupabase: [],
       timelineFiltroBloque: 'all',
@@ -589,9 +656,68 @@
       return state.temasConPreguntas.get(Number(temaNum)) || 0;
     }
 
-    // 7. MOTOR DE CONSULTA DE PREGUNTAS
+    // =========================================================================
+    // 7. FUNCIONES DE PONDERACIÓN POR VECES MOSTRADA Y ALEATORIZACIÓN DE RESPUESTAS
+    // =========================================================================
+
+    /**
+     * Muestreo ponderado sin reemplazo según veces_mostrada:
+     * A menor 'veces_mostrada', mayor probabilidad de ser seleccionada,
+     * manteniendo variabilidad probabilística (Efraimidis-Spirakis).
+     */
+    function seleccionarPonderado(items, cantidad) {
+      if (!items || items.length <= cantidad) return items ? [...items] : [];
+
+      const puntuados = items.map(item => {
+        const veces = Math.max(0, Number(item.veces_mostrada) || 0);
+        // Exponente aleatorio ponderado: puntuación = u^(veces + 1)
+        const u = Math.max(0.00001, Math.random());
+        const score = Math.pow(u, veces + 1);
+        return { item, score };
+      });
+
+      // Ordenar de mayor a menor puntuación y recortar al límite
+      puntuados.sort((a, b) => b.score - a.score);
+      return puntuados.slice(0, cantidad).map(p => p.item);
+    }
+
+    /**
+     * Baraja de manera aleatoria las opciones de respuesta de una pregunta
+     * recalculando dinámicamente el índice 'correcta' para garantizar rigor.
+     */
+    function aleatorizarOpcionesPregunta(pregunta) {
+      if (!pregunta || !Array.isArray(pregunta.opciones) || pregunta.opciones.length <= 1) {
+        return { ...pregunta };
+      }
+
+      const indiceCorrectaOriginal = typeof pregunta.correcta === 'number' ? pregunta.correcta : 0;
+
+      // Limpiamos cualquier prefijo previo tipo "A) ", "B) ", etc.
+      const opcionesConMeta = pregunta.opciones.map((opc, idx) => ({
+        texto: String(opc).replace(/^[A-D]\)\s*/i, '').trim(),
+        esCorrecta: idx === indiceCorrectaOriginal
+      }));
+
+      // Barajado Fisher-Yates
+      for (let i = opcionesConMeta.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opcionesConMeta[i], opcionesConMeta[j]] = [opcionesConMeta[j], opcionesConMeta[i]];
+      }
+
+      const nuevaCorrecta = opcionesConMeta.findIndex(o => o.esCorrecta);
+
+      return {
+        ...pregunta,
+        opciones: opcionesConMeta.map(o => o.texto),
+        correcta: nuevaCorrecta >= 0 ? nuevaCorrecta : 0
+      };
+    }
+
+    // 8. MOTOR DE CONSULTA Y PONDERACIÓN DE PREGUNTAS
     async function obtenerPreguntas({ temaNum = null, bloqueId = null, idsList = null, limite = 15, esSimulacro = false } = {}) {
       if (idsList && idsList.length === 0) return [];
+
+      let preguntasSeleccionadas = [];
 
       if (supabaseClient) {
         try {
@@ -602,58 +728,71 @@
               .in('id', idsList)
               .limit(limite);
             if (error) throw error;
-            return (data || []).sort(() => Math.random() - 0.5);
-          }
+            preguntasSeleccionadas = data || [];
+          } else {
+            // Traemos el pool con veces_mostrada para aplicar ponderación inteligente
+            let idQuery = supabaseClient
+              .from('preguntas')
+              .select('id, bloque_id, tema_num, veces_mostrada');
+            if (temaNum) idQuery = idQuery.eq('tema_num', temaNum);
+            if (bloqueId) idQuery = idQuery.eq('bloque_id', bloqueId);
 
-          let idQuery = supabaseClient.from('preguntas').select('id, bloque_id, tema_num');
-          if (temaNum) idQuery = idQuery.eq('tema_num', temaNum);
-          if (bloqueId) idQuery = idQuery.eq('bloque_id', bloqueId);
+            const { data: poolIds, error: poolError } = await idQuery;
+            if (poolError) throw poolError;
 
-          const { data: poolIds, error: poolError } = await idQuery;
-          if (poolError) throw poolError;
+            if (poolIds && poolIds.length > 0) {
+              let selectedIds = [];
 
-          if (poolIds && poolIds.length > 0) {
-            let selectedIds = [];
-
-            if (esSimulacro) {
-              const porBloque = {};
-              poolIds.forEach(p => {
-                const b = p.bloque_id || 1;
-                if (!porBloque[b]) porBloque[b] = [];
-                porBloque[b].push(p.id);
-              });
-
-              const bloques = Object.keys(porBloque);
-              if (bloques.length > 1) {
-                bloques.forEach(b => porBloque[b].sort(() => Math.random() - 0.5));
-                const porcion = Math.ceil(limite / bloques.length);
-                bloques.forEach(b => {
-                  selectedIds.push(...porBloque[b].splice(0, porcion));
+              if (esSimulacro) {
+                // Agrupamos por bloque oficial para balancear el simulacro
+                const porBloque = {};
+                poolIds.forEach(p => {
+                  const b = p.bloque_id || 1;
+                  if (!porBloque[b]) porBloque[b] = [];
+                  porBloque[b].push(p);
                 });
 
-                const restantes = poolIds
-                  .map(p => p.id)
-                  .filter(id => !selectedIds.includes(id))
-                  .sort(() => Math.random() - 0.5);
-                while (selectedIds.length < limite && restantes.length > 0) {
-                  selectedIds.push(restantes.pop());
+                const bloques = Object.keys(porBloque);
+                if (bloques.length > 1) {
+                  const porcion = Math.ceil(limite / bloques.length);
+                  bloques.forEach(b => {
+                    const seleccionadosBloque = seleccionarPonderado(porBloque[b], porcion);
+                    selectedIds.push(...seleccionadosBloque.map(p => p.id));
+                  });
+
+                  // Si falta rellenar hasta el límite, completamos ponderando los restantes
+                  const restantes = poolIds.filter(p => !selectedIds.includes(p.id));
+                  if (selectedIds.length < limite && restantes.length > 0) {
+                    const faltantes = seleccionarPonderado(restantes, limite - selectedIds.length);
+                    selectedIds.push(...faltantes.map(p => p.id));
+                  }
+                  selectedIds = selectedIds.slice(0, limite);
+                } else {
+                  selectedIds = seleccionarPonderado(poolIds, limite).map(p => p.id);
                 }
-                selectedIds = selectedIds.slice(0, limite).sort(() => Math.random() - 0.5);
               } else {
-                selectedIds = poolIds.map(p => p.id).sort(() => Math.random() - 0.5).slice(0, limite);
+                // Test de tema o de bloque con ponderación directa
+                selectedIds = seleccionarPonderado(poolIds, limite).map(p => p.id);
               }
-            } else {
-              selectedIds = poolIds.map(p => p.id).sort(() => Math.random() - 0.5).slice(0, limite);
-            }
 
-            const { data: preguntasCompletas, error: fullError } = await supabaseClient
-              .from('preguntas')
-              .select('*')
-              .in('id', selectedIds);
+              // Obtenemos las preguntas completas a partir de los IDs seleccionados
+              const { data: preguntasCompletas, error: fullError } = await supabaseClient
+                .from('preguntas')
+                .select('*')
+                .in('id', selectedIds);
 
-            if (fullError) throw fullError;
-            if (preguntasCompletas && preguntasCompletas.length > 0) {
-              return preguntasCompletas.sort(() => Math.random() - 0.5);
+              if (fullError) throw fullError;
+              preguntasSeleccionadas = preguntasCompletas || [];
+
+              // Disparamos la RPC de incremento atómico en la base de datos
+              if (selectedIds.length > 0) {
+                try {
+                  const idsTextArray = selectedIds.map(String);
+                  await supabaseClient.rpc('incrementar_veces_mostrada', { preguntas_ids: idsTextArray });
+                } catch (rpcErr) {
+                  console.warn("Fallo llamando a incrementar_veces_mostrada RPC:", rpcErr);
+                }
+              }
             }
           }
         } catch (err) {
@@ -661,20 +800,34 @@
         }
       }
 
-      let filtradas = [...MOCK_PREGUNTAS];
-      if (idsList && idsList.length > 0) {
-        filtradas = filtradas.filter(p => idsList.includes(p.id));
-      } else {
-        if (temaNum) filtradas = filtradas.filter(p => p.tema_num === temaNum);
-        if (bloqueId) filtradas = filtradas.filter(p => p.bloque_id === bloqueId);
-      }
-      return filtradas.sort(() => Math.random() - 0.5).slice(0, limite);
-    }
+      // Si no hay resultados de Supabase, usamos el banco local con la misma ponderación
+      if (preguntasSeleccionadas.length === 0) {
+        let filtradas = [...MOCK_PREGUNTAS];
+        if (idsList && idsList.length > 0) {
+          filtradas = filtradas.filter(p => idsList.includes(p.id));
+        } else {
+          if (temaNum) filtradas = filtradas.filter(p => p.tema_num === temaNum);
+          if (bloqueId) filtradas = filtradas.filter(p => p.bloque_id === bloqueId);
+        }
+        preguntasSeleccionadas = seleccionarPonderado(filtradas, limite);
 
+        // Incrementamos contador local en mock
+        preguntasSeleccionadas.forEach(p => {
+          p.veces_mostrada = (p.veces_mostrada || 0) + 1;
+        });
+      }
+
+      // Aleatorizamos el orden de las preguntas del test
+      preguntasSeleccionadas.sort(() => Math.random() - 0.5);
+
+      // Aleatorizamos las respuestas para cada una de las preguntas
+      return preguntasSeleccionadas.map(p => aleatorizarOpcionesPregunta(p));
+    }
     // 8. ENRUTAMIENTO Y MIGAS DE PAN
     function initApp() {
       renderSidebarAccordion();
       detectarTemasConPreguntas();
+      detectarArchivosMarkdownExistentes();
       handleHashChange();
       window.addEventListener('hashchange', handleHashChange);
     }
@@ -818,7 +971,7 @@
       lucide.createIcons();
     }
 
-    // 9. SIDEBAR ACCORDION & BUSCADOR GLOBAL
+    // 10. SIDEBAR ACCORDION & BUSCADOR GLOBAL
     function renderSidebarAccordion() {
       const container = document.getElementById('bloques-tree');
       container.innerHTML = TEMARIO.map(bloque => {
@@ -919,7 +1072,7 @@
 
     function renderHome(container) {
       const totalTemas = 65;
-      const temasListos = TEMAS_DISPONIBLES.size;
+      const temasListos = obtenerTotalTemasDisponibles();
       const pctListo = Math.round((temasListos / totalTemas) * 100);
 
       let temasConTestCount = 0;
@@ -947,7 +1100,7 @@
                   Tu espacio de estudio, apuntes y simulación de examen
                 </h1>
                 <p class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl">
-                  Accede a los 6 bloques oficiales, consulta teoría con fórmulas en LaTeX y entrena con simulacros oficiales y estadísticas de rendimiento en tiempo real.
+                  Accede a los 6 bloques oficiales, consulta teoría con fórmulas en LaTeX y entrena con simulacros con ponderación inteligente por veces mostradas y orden aleatorio de opciones.
                 </p>
 
                 <div class="pt-2 flex flex-wrap gap-2.5">
@@ -1199,7 +1352,7 @@
       lucide.createIcons();
     }
 
-    // 11. VISTA: LECTOR EDITORIAL DE APUNTES
+    // 12. VISTA: LECTOR EDITORIAL DE APUNTES
     function renderTemaView(container, temaNum) {
       if (!esTemaDisponible(temaNum)) {
         container.innerHTML = `
@@ -1343,7 +1496,7 @@
       lucide.createIcons();
     }
 
-    // 12. VISTA: DETALLE DE BLOQUE
+    // 13. VISTA: DETALLE DE BLOQUE
     function renderBloqueView(container, bloqueId) {
       const bloque = TEMARIO.find(b => b.id === bloqueId) || TEMARIO[0];
       const temasDisponibles = bloque.temas.filter(t => esTemaDisponible(t.num));
@@ -1428,7 +1581,7 @@
       lucide.createIcons();
     }
 
-    // 13. VISTA: CENTRO DE TESTS
+    // 14. VISTA: CENTRO DE TESTS
     function renderTestCenter(container) {
       const temasDisponibles = TEMARIO.flatMap(b => b.temas).filter(t => esTemaDisponible(t.num));
       const fallosCount = state.fallosIdsSupabase.length;
@@ -1437,7 +1590,7 @@
         <div class="space-y-6">
           <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/90 shadow-soft">
             <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Centro de Evaluación Oficial</h2>
-            <p class="text-xs text-slate-500 mt-1">Elige la modalidad que prefieras: test específico de tema, test por bloque o simulación global con penalización oficial (1/3).</p>
+            <p class="text-xs text-slate-500 mt-1">Elige la modalidad que prefieras: test específico de tema, test por bloque o simulación global con penalización oficial (1/3), selección ponderada y orden aleatorio de opciones.</p>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1545,14 +1698,14 @@
       lucide.createIcons();
     }
 
-    // 14. DISPARADORES ASÍNCRONOS
+    // 15. DISPARADORES ASÍNCRONOS
     function mostrarCargandoTest() {
       const viewport = document.getElementById('app-viewport');
       viewport.innerHTML = `
         <div class="max-w-md mx-auto my-16 bg-white p-8 rounded-3xl border border-slate-200/90 shadow-card text-center space-y-4">
           <div class="w-12 h-12 border-3 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <h3 class="text-sm font-bold text-slate-900">Preparando examen oficial...</h3>
-          <p class="text-xs text-slate-500">Conectando con el banco de preguntas, barajando opciones y configurando el cronómetro.</p>
+          <p class="text-xs text-slate-500">Priorizando preguntas menos mostradas, aleatorizando alternativas y configurando el cronómetro.</p>
         </div>
       `;
     }
@@ -1619,7 +1772,7 @@
       }, 1000);
     }
 
-    // 15. INTERFAZ DE EXAMEN (TEST RUNNER)
+    // 16. INTERFAZ DE EXAMEN (TEST RUNNER)
     function renderTestRunner(container) {
       const t = state.activeTest;
 
@@ -1716,7 +1869,7 @@
                   }">
                     ${['A', 'B', 'C', 'D'][idx]}
                   </span>
-                  <span class="mt-0.5 leading-relaxed">${opc.replace(/^[A-D]\)\s*/, '')}</span>
+                  <span class="mt-0.5 leading-relaxed">${opc}</span>
                 </button>
               `).join('')}
             </div>
@@ -1779,7 +1932,7 @@
       renderTestRunner(document.getElementById('app-viewport'));
     }
 
-    // 16. FINALIZACIÓN, DESGLOSE POR BLOQUES Y PERSISTENCIA HISTÓRICA
+    // 17. FINALIZACIÓN, DESGLOSE POR BLOQUES Y PERSISTENCIA HISTÓRICA
     async function finalizarTest() {
       if (!state.activeTest) return;
       clearInterval(state.testTimerInterval);
@@ -1935,7 +2088,7 @@
       navigate('test-results');
     }
 
-    // 17. GESTIÓN DE BOLSA DE FALLOS DESDE SUPABASE
+    // 18. GESTIÓN DE BOLSA DE FALLOS DESDE SUPABASE
     async function obtenerIdsFallosDesdeSupabase() {
       if (supabaseClient) {
         try {
@@ -2020,6 +2173,7 @@
         localStorage.removeItem('oposicion_historial_sesiones');
         localStorage.removeItem('oposicion_intentos_locales');
         state.metricasCargadas = false;
+        state.historialPaginaActual = 1;
         renderDashboard(document.getElementById('app-viewport'));
       }
     }
@@ -2096,7 +2250,7 @@
       return 'Test transversal';
     }
 
-    // 18. VISTA: RESULTADOS DE TEST
+    // 19. VISTA: RESULTADOS DE TEST
     function renderTestResults(container) {
       const t = state.activeTest;
       if (!t || !t.stats) {
@@ -2193,9 +2347,14 @@
 
                       return `
                         <div class="p-2.5 rounded-xl border text-xs flex items-center justify-between ${estilo}">
-                          <span>${op}</span>
-                          ${esOpcionCorrecta ? '<span class="text-[10px] font-bold text-emerald-700">Respuesta correcta</span>' : ''}
-                          ${esOpcionElegida && !esCorrecta ? '<span class="text-[10px] font-bold text-rose-700">Tu respuesta</span>' : ''}
+                          <div class="flex items-start gap-2">
+                            <span class="font-mono font-bold shrink-0">${['A', 'B', 'C', 'D'][oIdx]})</span>
+                            <span>${op}</span>
+                          </div>
+                          <div class="shrink-0 pl-2">
+                            ${esOpcionCorrecta ? '<span class="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">Respuesta correcta</span>' : ''}
+                            ${esOpcionElegida && !esCorrecta ? '<span class="text-[10px] font-bold text-rose-700 bg-rose-100/70 px-2 py-0.5 rounded-md">Tu respuesta</span>' : ''}
+                          </div>
                         </div>
                       `;
                     }).join('')}
@@ -2221,7 +2380,7 @@
       lucide.createIcons();
     }
 
-    // 19. VISTA: DASHBOARD DE MÉTRICAS, RENDIMIENTO Y NUEVO HISTORIAL
+    // 20. VISTA: DASHBOARD DE MÉTRICAS, RENDIMIENTO Y HISTORIAL PAGINADO
     async function cargarMetricasReales() {
       let sesiones = [];
       const aciertosBloques = [0, 0, 0, 0, 0, 0];
@@ -2382,6 +2541,18 @@
 
     function setHistoryFilter(tipo) {
       state.historyFilter = tipo;
+      state.historialPaginaActual = 1;
+      renderDashboard(document.getElementById('app-viewport'));
+    }
+
+    function cambiarPaginaHistorial(nuevaPagina) {
+      state.historialPaginaActual = nuevaPagina;
+      renderDashboard(document.getElementById('app-viewport'));
+    }
+
+    function cambiarLimitePorPagina(nuevoLimite) {
+      state.historialPorPagina = parseInt(nuevoLimite, 10);
+      state.historialPaginaActual = 1;
       renderDashboard(document.getElementById('app-viewport'));
     }
 
@@ -2455,6 +2626,7 @@
       const pctGlobal = tieneDatos ? Math.round((m.aciertos / m.totalIntentos) * 100) : 0;
       const fallosCount = state.fallosIdsSupabase.length;
 
+      // Filtrado del historial según botón activo
       let historialFiltrado = state.sesionesHistorial || [];
       if (state.historyFilter !== 'all') {
         historialFiltrado = historialFiltrado.filter(s => {
@@ -2464,6 +2636,20 @@
           return s.tipo === state.historyFilter;
         });
       }
+
+      // Cálculo de la paginación para la tabla de histórico
+      const totalSesiones = historialFiltrado.length;
+      const totalPaginas = Math.max(1, Math.ceil(totalSesiones / state.historialPorPagina));
+      if (state.historialPaginaActual > totalPaginas) {
+        state.historialPaginaActual = totalPaginas;
+      }
+      if (state.historialPaginaActual < 1) {
+        state.historialPaginaActual = 1;
+      }
+
+      const indiceInicio = (state.historialPaginaActual - 1) * state.historialPorPagina;
+      const indiceFin = Math.min(indiceInicio + state.historialPorPagina, totalSesiones);
+      const sesionesPaginadas = historialFiltrado.slice(indiceInicio, indiceFin);
 
       let temasParaSelect = [];
       if (state.timelineFiltroBloque === 'all') {
@@ -2603,9 +2789,7 @@
                 </div>
                 <p class="text-sm font-semibold text-slate-700">Sin desglose de preguntas registrado en la tabla "intentos"</p>
                 <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-                  ${m.totalTests > 0 
-                    ? 'Tienes sesiones guardadas en <code>sesiones_test</code>, pero no se registraron las preguntas individuales en la tabla <code>intentos</code>. Haz un test desde el campus para que se guarden tus intentos y se active el gráfico automáticamente.' 
-                    : 'Completa un test de tema, de bloque o simulacro para registrar tu progreso y activar el gráfico por bloques.'}
+                  Completa un test de tema, de bloque o simulacro para registrar tu progreso y activar el gráfico por bloques.
                 </p>
                 <div class="pt-2">
                   <button onclick="navigate('test-center')" class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition active:scale-95">
@@ -2616,14 +2800,14 @@
             `}
           </div>
 
-          <!-- Histórico Detallado de Tests por Tipo -->
+          <!-- Histórico Detallado de Tests con Paginación -->
           <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-soft space-y-4">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div>
                 <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
                   <i data-lucide="history" class="w-4 h-4 text-indigo-600"></i> Histórico Detallado de Sesiones
                 </h3>
-                <p class="text-xs text-slate-500 mt-0.5">Registro cronológico de evaluaciones con tiempo empleado, penalización y nota</p>
+                <p class="text-xs text-slate-500 mt-0.5">Registro cronológico de evaluaciones con tiempo empleado, penalización, nota y paginación</p>
               </div>
 
               <!-- Acciones y Filtros de Historial -->
@@ -2682,8 +2866,8 @@
               </div>
             </div>
 
-            <!-- Tabla de Registros -->
-            ${historialFiltrado.length > 0 ? `
+            <!-- Tabla de Registros Paginada -->
+            ${sesionesPaginadas.length > 0 ? `
               <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                   <thead>
@@ -2699,7 +2883,7 @@
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    ${historialFiltrado.map(s => {
+                    ${sesionesPaginadas.map(s => {
                       const tag = etiquetaTipoTest(s.tipo, s.meta);
                       const materia = descripcionMateriaTest(s.tipo, s.meta);
                       const aprobado = parseFloat(s.nota) >= 5.0;
@@ -2740,6 +2924,48 @@
                     }).join('')}
                   </tbody>
                 </table>
+              </div>
+
+              <!-- Barra de Controles de Paginación -->
+              <div class="px-2 py-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                <div class="flex items-center gap-3">
+                  <span>
+                    Mostrando del <strong class="text-slate-800">${indiceInicio + 1}</strong> al <strong class="text-slate-800">${indiceFin}</strong> de <strong class="text-slate-800">${totalSesiones}</strong> registros
+                  </span>
+                  <span class="text-slate-300">|</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-slate-400 text-[11px]">Por página:</span>
+                    <select 
+                      onchange="cambiarLimitePorPagina(this.value)"
+                      class="bg-slate-50 border border-slate-200 text-slate-700 rounded-lg px-2 py-1 text-xs outline-none focus:border-brand-500"
+                    >
+                      <option value="5" ${state.historialPorPagina === 5 ? 'selected' : ''}>5</option>
+                      <option value="10" ${state.historialPorPagina === 10 ? 'selected' : ''}>10</option>
+                      <option value="20" ${state.historialPorPagina === 20 ? 'selected' : ''}>20</option>
+                      <option value="50" ${state.historialPorPagina === 50 ? 'selected' : ''}>50</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 font-medium">
+                  <button 
+                    onclick="cambiarPaginaHistorial(${state.historialPaginaActual - 1})"
+                    ${state.historialPaginaActual <= 1 ? 'disabled class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition active:scale-95 shadow-sm"'}
+                  >
+                    <i data-lucide="chevron-left" class="w-3.5 h-3.5 inline mr-1"></i> Anterior
+                  </button>
+
+                  <div class="px-3 py-1 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl font-mono text-[11px] font-semibold">
+                    ${state.historialPaginaActual} / ${totalPaginas}
+                  </div>
+
+                  <button 
+                    onclick="cambiarPaginaHistorial(${state.historialPaginaActual + 1})"
+                    ${state.historialPaginaActual >= totalPaginas ? 'disabled class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition active:scale-95 shadow-sm"'}
+                  >
+                    Siguiente <i data-lucide="chevron-right" class="w-3.5 h-3.5 inline ml-1"></i>
+                  </button>
+                </div>
               </div>
             ` : `
               <div class="py-8 text-center text-slate-400 text-xs">
@@ -3105,7 +3331,7 @@
       });
     }
 
-    // 20. INICIALIZACIÓN
+    // 21. INICIALIZACIÓN
     window.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>

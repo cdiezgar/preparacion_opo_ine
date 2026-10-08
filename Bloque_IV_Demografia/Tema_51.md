@@ -1,298 +1,355 @@
-# Tema 5. Estructura y Crecimiento de la Población: Pirámides, Envejecimiento y Poblaciones Teóricas
+# Tema 51. Estructura por edad y sexo. Piramides de población e indices de envejecimiento
 
 ---
 
-## 1. Visión General e Indicadores de Estructura Poblacional
+## 1. Visión General, Fuentes e Indicadores Básicos de Estructura
 
-La **estructura de una población** representa la distribución de sus efectivos según características demográficas y socioeconómicas en un instante de tiempo determinado (magnitud de *stock*). Las variables estructurales primarias son el **sexo** y la **edad**, de las cuales se derivan las pautas de mortalidad, fecundidad, nupcialidad, actividad económica y dependencia.
+El estudio de la población comienza por analizar su volumen, velocidad de crecimiento y composición estructural. Dos poblaciones con idéntico número de habitantes pueden presentar dinámicas y necesidades socioeconómicas radicalmente distintas si su composición por sexo, edad u otras variables es diferente.
 
 ```
-                    ┌─────────────────────────────────────────┐
-                    │        ESTRUCTURA DE LA POBLACIÓN       │
-                    └────────────────────┬────────────────────┘
-                                         │
-                 ┌───────────────────────┴───────────────────────┐
-                 ▼                                               ▼
-    ┌───────────────────────────┐                   ┌───────────────────────────┐
-    │    COMPOSICIÓN POR SEXO   │                   │    COMPOSICIÓN POR EDAD   │
-    │   (Dimensión biológica)   │                   │   (Dimensión temporal)    │
-    └────────────┬──────────────┘                   └────────────┬──────────────┘
-                 │                                               │
-      ┌──────────┴──────────┐                         ┌──────────┴──────────┐
-      ▼                     ▼                         ▼                     ▼
-┌───────────┐         ┌───────────┐             ┌───────────┐         ┌───────────┐
-│ RATIO DE  │         │PROPORCIÓN │             │MEDIDAS DE │         │ ÍNDICES DE│
-│MASCULINID.│         │DE HOMBRES/│             │ TENDENCIA │         │ENVEJECIM. │
-│   (RM)    │         │  MUJERES  │             │CENTRAL(EM)│         │ DEPENDEN. │
-└───────────┘         └───────────┘             └───────────┘         └───────────┘
+                  ┌─────────────────────────────────────────┐
+                  │    ESTRUCTURA Y DINÁMICA POBLACIONAL    │
+                  └────────────────────┬────────────────────┘
+                                       │
+               ┌───────────────────────┴───────────────────────┐
+               ▼                                               ▼
+  ┌─────────────────────────┐                     ┌─────────────────────────┐
+  │   PROCESOS DE ENTRADA   │                     │   PROCESOS DE SALIDA    │
+  │ (Fecundidad / Inmigr.)  │                     │ (Mortalidad / Emigr.)   │
+  └────────────┬────────────┘                     └────────────┬────────────┘
+               │                                               │
+               └───────────────────────┬───────────────────────┘
+                                       ▼
+                       ┌───────────────────────────────┐
+                       │   CAMBIO Y ESTRUCTURA A1/JAN  │
+                       │   (Sexo, Edad, Nacionalidad)  │
+                       └───────────────────────────────┘
 ```
 
----
+### Fuentes Estadísticas Principales en España (INE)
 
-### 1.1. Composición por Sexo
-
-El análisis por sexo mide la proporción entre hombres y mujeres. Biológicamente nacen más varones que mujeres, pero la **sobremortalidad masculina** diferencial a lo largo de la vida invierte esta relación en las edades avanzadas.
-
-#### A) Ratio o Razón de Masculinidad ($RM_t$)
-Mide el número de hombres por cada 100 mujeres en la población a $1$ de enero del año $t$:
-
-$$RM_t = \frac{P_{hombres,t}}{P_{mujeres,t}} \cdot 100$$
-
-* **Ratio de Masculinidad al Nacimiento ($RMN_t$):** Presenta una constancia biológica entre $105$ y $107$ niños por cada $100$ niñas (en España el promedio histórico se sitúa en torno a $107$).
-* **Ratio de Feminidad ($RF_t$):** Indicador inverso que expresa el número de mujeres por cada 100 hombres:
-
-$$RF_t = \frac{P_{mujeres,t}}{P_{hombres,t}} \cdot 100 = \frac{10000}{RM_t}$$
-
-#### B) Proporciones por Sexo
-Expresan el peso relativo de cada sexo respecto a la población total ($P_t$):
-
-$$\text{PROP}_{hombres,t} = \frac{P_{hombres,t}}{P_t} \cdot 100 \qquad \text{y} \qquad \text{PROP}_{mujeres,t} = \frac{P_{mujeres,t}}{P_t} \cdot 100$$
-
-> **Regla de Examen:** En poblaciones jóvenes o con fuerte inmigración económica masculina, el $RM_t$ es superior a $100$. En poblaciones envejecidas, la sobremortalidad masculina acumulada hace que el $RM_t$ descienda muy por debajo de $100$ en los grandes grupos de edad superior ($65$ y más años).
+* **Cifras de Población:** Operación estadística del INE que proporciona la medición cuantitativa oficial de la población residente en España (referencia en todas las operaciones del INE).
+* **Estadística del Padrón Continuo:** Proporciona los datos de población a nivel municipal (utilizada en municipios de más de 50.000 habitantes y capitales de provincia).
+* **Estadísticas del Movimiento Natural de la Población (MNP):** Recoge los hechos vitales (nacimientos, defunciones, matrimonios).
+* **Estadística de Migraciones:** Mide los flujos migratorios interautonómicos, interprovinciales y con el extranjero.
+* **Indicadores Demográficos Básicos (IDB):** Operación sintética del INE que integra las fuentes anteriores para calcular los indicadores de estructura y crecimiento a escala nacional, autonómica y provincial.
 
 ---
 
-### 1.2. Composición por Edad
+## 2. Indicadores de Estructura Demográfica
 
-La edad es una variable cuantitativa continua que estadísticamente se discretiza en **años cumplidos** (redondeo a la baja de la edad exacta).
+### 2.1. Composición por Sexo
 
-#### A) Edad Media de la Población ($\text{EMedia}_t$)
-Media aritmética de las edades de los individuos de la población a $1$ de enero del año $t$. Considerando datos de edades simples de amplitud un año, la marca de clase es $x + 0{,}5$:
+El sexo es una variable biológica clave. Nacen más hombres que mujeres (relación de masculinidad al nacer entre 104 y 106 varones por 100 mujeres), pero la sobremortalidad masculina a lo largo de todas las edades invierte esta relación en las edades avanzadas.
 
-$$\text{EMedia}_t = \frac{\sum_x \left(x + 0{,}5\right) \cdot P_{x,t}}{\sum_x P_{x,t}}$$
+#### Ratio o Razón de Masculinidad ($RM_t$)
+Mide el número de hombres por cada 100 mujeres a 1 de enero del año $t$:
 
-Donde $P_{x,t}$ representa la población residente con $x$ años cumplidos a $1$ de enero del año $t$.
+$$RM_t = \frac{P_{hombres, t}}{P_{mujeres, t}} \cdot 100$$
 
-#### B) Edad Mediana de la Población ($\text{EMediana}_t$)
-Medida de posición que divide a la distribución de la población en dos partes numéricamente iguales (el $50\%$ tiene una edad igual o inferior a la mediana y el otro $50\%$ una edad superior). Se calcula mediante la interpolación:
+#### Ratio de Feminidad ($RF_t$)
+Es la inversa de la Ratio de Masculinidad:
 
-$$\text{EMediana}_t = \text{EDAD}_{med,t} + \frac{\frac{P_t}{2} - P_{[0, med-1],t}}{P_{med,t}}$$
+$$RF_t = \frac{P_{mujeres, t}}{P_{hombres, t}} \cdot 100$$
+
+> **Regla de Examen:** La proporción de hombres en la población total se calcula dividiendo el total de hombres entre la población total ($P_{hombres} / P_t$), mientras que la Ratio de Masculinidad relaciona hombres frente a mujeres ($P_{hombres} / P_{mujeres} \cdot 100$). No confundir proporción con razón/ratio.
+
+---
+
+### 2.2. Composición por Edad
+
+La edad se maneja habitualmente como variable discreta expresada en **años cumplidos** (redondeo a la baja de la edad exacta). Para grupos quinquenales, la marca de clase es el punto medio del intervalo ($x + 0{,}5$ para edades simples).
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   GRANDES GRUPOS DE EDAD FUNCIONAL                     │
+├──────────────────────────┬──────────────────────────┬──────────────────┤
+│ Jóvenes (0 - 15 años)    │ Activos (16 - 64 años)   │ Mayores (65+)    │
+│ Población Potenc. Inact. │ Potencialmente Activos   │ Potenc. Inactiva │
+└──────────────────────────┴──────────────────────────┴──────────────────┘
+```
+
+#### A) Edad Media de la Población ($EMedia_t$)
+Promedio aritmético de las edades de los individuos a 1 de enero del año $t$. Al trabajar con edades cumplidas simples, la marca de clase es $x + 0{,}5$:
+
+$$EMedia_t = \frac{\sum_{x} (x + 0{,}5) \cdot P_{x,t}}{\sum_{x} P_{x,t}}$$
+
+Donde $x$ es la edad cumplida y $P_{x,t}$ es la población de edad cumplida $x$ a 1 de enero del año $t$.
+
+#### B) Edad Mediana de la Población ($EMediana_t$)
+Edad exacta que divide a la distribución poblacional en dos grupos numéricamente iguales (el 50% tiene una edad menor o igual y el otro 50% una edad mayor o igual):
+
+$$EMediana_t = EDAD_{med,t} + \frac{(P_t / 2) - P_{[0, med-1],t}}{P_{med,t}}$$
 
 Donde:
-* $\text{EDAD}_{med,t}$: Edad entera cumplida donde la población acumulada alcanza o supera por primera vez el $50\%$ de la población total ($P_t / 2$).
-* $P_{[0, med-1],t}$: Población acumulada con edad inferior a $\text{EDAD}_{med,t}$.
-* $P_{med,t}$: Población de la edad simple $\text{EDAD}_{med,t}$.
+* $EDAD_{med,t}$: Edad en años cumplidos en la que se alcanza o supera la mitad de la población.
+* $P_t$: Población total a 1 de enero del año $t$.
+* $P_{[0, med-1],t}$: Población acumulada con edad cumplida estrictamente inferior a $EDAD_{med,t}$.
+* $P_{med,t}$: Población con edad cumplida igual a $EDAD_{med,t}$.
 
-> **Regla de Examen:** En la serie histórica reciente de España, la Edad Mediana ha crecido a mayor velocidad que la Edad Media debido al fuerte estrechamiento de la base por la caída de la natalidad, superando a la Edad Media a partir del año 2016.
+> **Regla de Examen:** En la población española, la **Edad Mediana** se mantuvo históricamente por debajo de la **Edad Media**, pero debido al intenso envejecimiento por la base y la cúspide, la Edad Mediana creció más rápidamente y **superó a la Edad Media a partir del año 2016**.
 
----
+#### C) Proporción de Mayores e Índice de Envejecimiento
 
-### 1.3. Indicadores Sintéticos de Envejecimiento y Dependencia
+* **Proporción de Personas Mayores ($PROP_{x+,t}$):**
 
-Para la evaluación analítica de la estructura por edad se definen los grandes grupos funcional-laborales: **jóvenes ($0$ a $15$ años)**, **potencialmente activos ($16$ a $64$ años)** y **mayores ($65$ y más años)**.
+$$PROP_{x+,t} = \frac{P_{x+,t}}{P_t} \cdot 100 \quad (x = 65, 70, \dots, 85+)$$
 
-#### A) Proporción de Personas Mayores ($\text{PROP}_{x+},t$)
-Porcentaje de personas de $x$ o más años respecto al total poblacional:
+* **Índice de Envejecimiento ($IE_t$):** Porcentaje que representa la población de 65 y más años sobre la población menor de 16 años a 1 de enero del año $t$:
 
-$$\text{PROP}_{65+,t} = \frac{P_{65+,t}}{P_t} \cdot 100 \qquad \text{y} \qquad \text{PROP}_{84+,t} = \frac{P_{84+,t}}{P_t} \cdot 100$$
+$$IE_t = \frac{P_{65+,t}}{P_{0-15,t}} \cdot 100$$
 
-#### B) Índice de Envejecimiento
-Cociente entre la población de $65$ y más años y la población menor de $16$ años:
+#### D) Tasas de Dependencia Demográfica
 
-$$\text{Índice de Envejecimiento}_t = \frac{P_{65+,t}}{P_{0-15,t}} \cdot 100$$
+Miden la relación cuantitativa entre la población potencialmente inactiva por razón de edad y la población potencialmente activa (16 a 64 años):
 
-Un valor superior a $100$ indica que la población mayor supera numéricamente a la población infantil. En España, este índice rebasó el $100\%$ en el año $2000$ y alcanzó el $129{,}2\%$ en $2021$.
+* **Tasa de Dependencia Global ($TD_t$):**
 
-#### C) Tasas de Dependencia Económico-Demográfica
-Miden la relación entre la población potencialmente inactiva por razón de edad y la población en edad de trabajar ($16$ a $64$ años):
+$$TD_t = \frac{P_{0-15,t} + P_{65+,t}}{P_{16-64,t}} \cdot 100$$
 
-1. **Tasa de Dependencia Total ($TD_t$):**
-   $$TD_t = \frac{P_{0-15,t} + P_{65+,t}}{P_{16-64,t}} \cdot 100$$
+* **Tasa de Dependencia de Jóvenes ($TD_{jov,t}$):**
 
-2. **Tasa de Dependencia de Jóvenes ($TD_{joven,t}$):**
-   $$TD_{joven,t} = \frac{P_{0-15,t}}{P_{16-64,t}} \cdot 100$$
+$$TD_{jov,t} = \frac{P_{0-15,t}}{P_{16-64,t}} \cdot 100$$
 
-3. **Tasa de Dependencia de Mayores ($TD_{mayor,t}$):**
-   $$TD_{mayor,t} = \frac{P_{65+,t}}{P_{16-64,t}} \cdot 100$$
+* **Tasa de Dependencia de Mayores ($TD_{may,t}$):**
 
-$$\text{Propiedad de aditividad:} \qquad TD_t = TD_{joven,t} + TD_{mayor,t}$$
+$$TD_{may,t} = \frac{P_{65+,t}}{P_{16-64,t}} \cdot 100$$
+
+$$\text{Propiedad aditiva:} \quad TD_t = TD_{jov,t} + TD_{may,t}$$
 
 ---
 
-## 2. Pirámides de Población
+### 2.3. Composición por Nacionalidad y Lugar de Nacimiento
 
-### 2.1. Definición y Construcción Técnica
+* **Proporción de Población Nacida en el Extranjero:**
 
-La **pirámide de población** es la representación gráfica fundamental de la estructura por edad y sexo. Consiste en dos histogramas de barras horizontales adosados:
-* **Eje Vertical (Ordenadas):** Edades simples o grupos quinquenales de edad (de menor a mayor altura).
-* **Eje Horizontal (Abscisas):** Efectivos de hombres a la izquierda y de mujeres a la derecha.
-* **Escala de Barras:** Para permitir la comparabilidad entre poblaciones de distinto tamaño, la superficie de los rectángulos se expresa en **proporciones o porcentajes sobre la población total** ($\text{PROP}_{x,x+a}^m$ y $\text{PROP}_{x,x+a}^f$), verificándose:
+$$PROP_{nacido\_ext, t} = \frac{P_{nacido\_ext, t}}{P_t} \cdot 100$$
 
-$$\sum_x \left(\text{PROP}_{x,x+a}^m + \text{PROP}_{x,x+a}^f\right) = 1 \quad (\text{o } 100\%)$$
+* **Proporción de Población Extranjera (Nacionalidad):**
+
+$$PROP_{ext, t} = \frac{P_{ext, t}}{P_t} \cdot 100$$
 
 ---
 
-### 2.2. Tipología Clásica de Pirámides Poblacionales
+## 3. Pirámides de Población
+
+### 3.1. Definición y Reglas de Construcción
+
+La pirámide de población es una representación gráfica formada por dos histogramas de barras horizontales superpuestos y contrapuestos:
+* **Eje Vertical (Ordenadas):** Edades cumplidas (año a año) o grupos de edad (quinquenales).
+* **Eje Horizontal (Abscisas):** Efectivos de población (en valores absolutos o relativos/porcentajes sobre el total).
+* **Convención:** Hombres a la **izquierda** (azul/oscuro) y Mujeres a la **derecha** (rojo/claro).
+* Al construirla a 1 de enero, cada barra horizontal coincide exactamente con una **cohorte o generación de nacimiento** ($g = t - x$).
 
 <div class="my-6 flex justify-center not-prose">
 <svg viewBox="0 0 500 320" class="w-full max-w-md bg-white rounded-xl border border-slate-200 p-4 shadow-sm" xmlns="http://www.w3.org/2000/svg">
-  <text x="250" y="22" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="13" fill="#1e293b">Tipologías Estructurales de Pirámides de Población</text>
+  <!-- Title -->
+  <text x="250" y="22" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="13" fill="#1e293b">Tipología de Pirámides de Población</text>
   
-  <!-- 1. Pagoda -->
-  <g transform="translate(20, 45)">
-    <rect x="0" y="0" width="135" height="230" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
-    <text x="67.5" y="20" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="10" fill="#0f172a">EXPANSIVA (PAGODA)</text>
-    <!-- Pyramid shape -->
-    <polygon points="67.5,35 15,200 120,200" fill="#ef4444" opacity="0.7"/>
-    <line x1="67.5" y1="35" x2="67.5" y2="200" stroke="#b91c1c" stroke-width="1.5"/>
-    <text x="67.5" y="218" text-anchor="middle" font-family="sans-serif" font-size="8.5" fill="#475569">Alta natalidad/mortalidad</text>
+  <!-- Pyramid 1: Expansiva (Pagoda) -->
+  <g transform="translate(10, 45)">
+    <text x="65" y="15" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="10" fill="#0369a1">Expansiva (Pagoda)</text>
+    <!-- Left (Men) -->
+    <path d="M 65 30 L 65 180 L 10 180 Z" fill="#38bdf8" opacity="0.8"/>
+    <!-- Right (Women) -->
+    <path d="M 65 30 L 65 180 L 120 180 Z" fill="#f43f5e" opacity="0.8"/>
+    <line x1="65" y1="30" x2="65" y2="185" stroke="#475569" stroke-width="1.5"/>
+    <text x="65" y="200" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#475569">Alta natalidad</text>
+    <text x="65" y="212" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#64748b">Países en desarrollo</text>
   </g>
 
-  <!-- 2. Campana -->
-  <g transform="translate(182, 45)">
-    <rect x="0" y="0" width="135" height="230" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
-    <text x="67.5" y="20" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="10" fill="#0f172a">ESTACIONARIA (CAMPANA)</text>
-    <!-- Bell shape -->
-    <path d="M 67.5,35 C 40,80 30,140 30,200 L 105,200 C 105,140 95,80 67.5,35 Z" fill="#3b82f6" opacity="0.7"/>
-    <line x1="67.5" y1="35" x2="67.5" y2="200" stroke="#1d4ed8" stroke-width="1.5"/>
-    <text x="67.5" y="218" text-anchor="middle" font-family="sans-serif" font-size="8.5" fill="#475569">Natalidad/mortalidad estables</text>
+  <!-- Pyramid 2: Estacionaria (Campana) -->
+  <g transform="translate(175, 45)">
+    <text x="65" y="15" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="10" fill="#0f766e">Estacionaria (Campana)</text>
+    <!-- Left -->
+    <path d="M 65 30 C 50 70 30 130 25 180 L 65 180 Z" fill="#2dd4bf" opacity="0.8"/>
+    <!-- Right -->
+    <path d="M 65 30 C 80 70 100 130 105 180 L 65 180 Z" fill="#fb7185" opacity="0.8"/>
+    <line x1="65" y1="30" x2="65" y2="185" stroke="#475569" stroke-width="1.5"/>
+    <text x="65" y="200" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#475569">Natalidad estable</text>
+    <text x="65" y="212" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#64748b">Poblaciones maduras</text>
   </g>
 
-  <!-- 3. Bulbo -->
-  <g transform="translate(345, 45)">
-    <rect x="0" y="0" width="135" height="230" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
-    <text x="67.5" y="20" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="10" fill="#0f172a">REGRESIVA (BULBO)</text>
-    <!-- Urn/Bulb shape -->
-    <path d="M 67.5,35 C 30,70 15,110 30,150 C 40,175 50,190 50,200 L 85,200 C 85,190 95,175 105,150 C 120,110 105,70 67.5,35 Z" fill="#10b981" opacity="0.7"/>
-    <line x1="67.5" y1="35" x2="67.5" y2="200" stroke="#047857" stroke-width="1.5"/>
-    <text x="67.5" y="218" text-anchor="middle" font-family="sans-serif" font-size="8.5" fill="#475569">Base estrecha/Envejecimiento</text>
+  <!-- Pyramid 3: Regresiva (Bulbo) -->
+  <g transform="translate(340, 45)">
+    <text x="65" y="15" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="10" fill="#b91c1c">Regresiva (Bulbo)</text>
+    <!-- Left -->
+    <path d="M 65 30 C 40 80 20 110 45 180 L 65 180 Z" fill="#818cf8" opacity="0.8"/>
+    <!-- Right -->
+    <path d="M 65 30 C 90 80 110 110 85 180 L 65 180 Z" fill="#f43f5e" opacity="0.8"/>
+    <line x1="65" y1="30" x2="65" y2="185" stroke="#475569" stroke-width="1.5"/>
+    <text x="65" y="200" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#475569">Base estrecha</text>
+    <text x="65" y="212" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#64748b">Países desarrollados</text>
+  </g>
+
+  <!-- Base Label -->
+  <rect x="50" y="260" width="400" height="35" rx="6" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="250" y="281" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="semibold" fill="#334155">Perfil Población Española Actual: Regresiva (Bulbo / Urna)</text>
+</svg>
+</div>
+
+### 3.2. Clasificación Tipológica de Pirámides
+
+1. **Expansiva o Pagoda:** Base ancha y rápida reducción hacia la cúspide. Propia de poblaciones jóvenes con alta natalidad y alta mortalidad.
+2. **Estacionaria o Campana:** Base moderada y mortalidad concentrada en edades avanzadas. Mantenimiento del reemplazo generacional.
+3. **Regresiva, Bulbo o Urna:** Base estrecha (denota denatalidad) y abultamiento en las edades centrales y avanzadas. Población envejecida.
+
+### 3.3. Huellas Históricas en la Pirámide de España
+
+La pirámide española refleja eventos históricos clave que han afectado a cohortes específicas:
+* **Guerra Civil Española (1936-1939):**
+  * Sobremortalidad en varones nacidos entre 1911 y 1921 (combatientes).
+  * Caída estrecha de nacimientos durante la guerra y posguerra inmediata (generaciones de **1937 a 1942**), destacando la base mínima del año **1940** ("hueco de la generación vacía").
+* **Baby-Boom Español (1958-1977):** Abultamiento central máximo de la pirámide (actuales cohortes de 45 a 65 años).
+* **Eco del Baby-Boom y Repunte Migratorio (2000-2008):** Incremento de nacimientos observable en la cohorte de 2008.
+
+---
+
+## 4. Indicadores y Tasas de Crecimiento Demográfico
+
+### 4.1. La Ecuación Compensadora del Crecimiento
+
+El tamaño de una población en el año $t+1$ es el resultado del balance de entradas (nacimientos $N_t$ e inmigraciones $I_t$) y salidas (defunciones $D_t$ y emigraciones $E_t$):
+
+$$P_{t+1} = P_t + N_t - D_t + I_t - E_t$$
+
+$$\text{Saldo Vegetativo (Natural):} \quad SV_t = N_t - D_t$$
+
+$$\text{Saldo Migratorio:} \quad SM_t = I_t - E_t$$
+
+$$\text{Crecimiento Total Absoluto:} \quad CT_t = SV_t + SM_t = P_{t+1} - P_t$$
+
+---
+
+### 4.2. Tasas Relativas de Crecimiento (por 1.000 habitantes)
+
+Para comparar poblaciones de distinto tamaño, los indicadores se refieren a la **Población Media del periodo** ($P_{01-07-t}$, estimación del INE a 1 de julio):
+
+#### A) Tasa de Crecimiento Natural / Saldo Vegetativo por 1.000 hab. ($TCN_t$)
+
+$$TCN_t = \frac{N_t - D_t}{P_{01-07-t}} \cdot 1000 = TBN_t - TBM_t$$
+
+#### B) Saldo Migratorio por 1.000 hab. / Tasa de Migración Neta ($SM_{1000,t}$)
+
+$$SM_{1000,t} = \frac{I_t - E_t}{P_{01-07-t}} \cdot 1000 = TBI_t - TBE_t$$
+
+#### C) Crecimiento de la Población por 1.000 hab. ($CT_{1000,t}$)
+
+$$CT_{1000,t} = \frac{P_{01-01-(t+1)} - P_{01-01-t}}{P_{01-07-t}} \cdot 1000 = TCN_t + SM_{1000,t}$$
+
+#### D) Nacidos por 1.000 Defunciones ($RND_t$)
+
+$$RND_t = \frac{N_t}{D_t} \cdot 1000$$
+
+> **Regla de Examen:** Cuando $RND_t > 1000$, la población presenta un saldo vegetativo positivo ($N_t > D_t$). Si $RND_t < 1000$, la población se encuentra en decrecimiento natural o vegetativo negativo.
+
+---
+
+## 5. El Envejecimiento Demográfico
+
+El envejecimiento es un proceso estructural derivado de dos fuerzas actuando simultáneamente:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   DOBLE DIMENSIÓN DEL ENVEJECIMIENTO                   │
+├───────────────────────────────────┬────────────────────────────────────┤
+│ ENVEJECIMIENTO POR LA BASE        │ ENVEJECIMIENTO POR LA CÚSPIDE      │
+│ Caída de la natalidad y          │ Aumento de la esperanza de vida    │
+│ fecundidad (menor % de jóvenes).  │ en edades avanzadas (crece % 65+). │
+└───────────────────────────────────┴────────────────────────────────────┘
+```
+
+### Manifestaciones e Impacto Socioeconómico
+
+1. **Aumento de la Tasa de Dependencia de Mayores:** Incremento sostenido del cociente entre pensionistas/inactivos y población activa.
+2. **Feminización de la Vejez:** Derivada de la sobremortalidad masculina, provocando mayores proporciones de mujeres en las edades centenarias ($85+$ años).
+3. **Pérdida de Capacidad de Reemplazo Laboral:** Envejecimiento de la masa de trabajadores en edad productiva.
+
+---
+
+## 6. Modelos Teóricos: Población Estable y Población Estacionaria
+
+En el análisis teórico demográfico se recurre a modelos matemáticos simplificados cerrados a la migración ($I = 0, E = 0$):
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   POBLACIÓN ESTABLE (Modelo Lotka)                     │
+│  - Población cerrada a la migración.                                   │
+│  - Pautas constantes de mortalidad y fecundidad por edad.              │
+│  - Crecimiento a una tasa constante $r$ (nacimientos $N_t = N_0 e^{rt}$).│
+│  - Estructura por edad INVARIABLE en el tiempo.                        │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    │ Caso particular ($r = 0$)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   POBLACIÓN ESTACIONARIA                               │
+│  - Tasa de crecimiento nula ($r = 0 \implies N = D$).                  │
+│  - Cifra de nacimientos constante e igual a defunciones.               │
+│  - Volumen total $P$ y estructura por edad CONSTANTES.                 │
+│  - Coincide con la función $L_x$ de la Tabla de Mortalidad.            │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+<div class="my-6 flex justify-center not-prose">
+<svg viewBox="0 0 500 280" class="w-full max-w-md bg-white rounded-xl border border-slate-200 p-4 shadow-sm" xmlns="http://www.w3.org/2000/svg">
+  <!-- Title -->
+  <text x="250" y="22" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="13" fill="#1e293b">Comparación de Modelos Teóricos de Población</text>
+
+  <!-- Stable Population -->
+  <g transform="translate(30, 45)">
+    <text x="90" y="15" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="11" fill="#0369a1">Población Estable (r > 0)</text>
+    <!-- Left -->
+    <path d="M 90 30 L 15 170 L 90 170 Z" fill="#38bdf8" opacity="0.75"/>
+    <!-- Right -->
+    <path d="M 90 30 L 165 170 L 90 170 Z" fill="#38bdf8" opacity="0.75"/>
+    <line x1="90" y1="30" x2="90" y2="175" stroke="#0284c7" stroke-width="1.5"/>
+    <text x="90" y="195" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#334155">Base piramidal triangular</text>
+    <text x="90" y="208" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#64748b">Crecimiento constante $r$</text>
+  </g>
+
+  <!-- Stationary Population -->
+  <g transform="translate(250, 45)">
+    <text x="90" y="15" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="11" fill="#15803d">Población Estacionaria (r = 0)</text>
+    <!-- Left -->
+    <path d="M 90 30 C 40 40 30 120 30 170 L 90 170 Z" fill="#4ade80" opacity="0.75"/>
+    <!-- Right -->
+    <path d="M 90 30 C 140 40 150 120 150 170 L 90 170 Z" fill="#4ade80" opacity="0.75"/>
+    <line x1="90" y1="30" x2="90" y2="175" stroke="#16a34a" stroke-width="1.5"/>
+    <text x="90" y="195" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#334155">Perfil rectangular (Tabla $L_x$)</text>
+    <text x="90" y="208" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#64748b">Nacimientos = Defunciones</text>
   </g>
 </svg>
 </div>
 
-1. **Expansiva (Forma de Pagoda o Triangular):**
-   * **Características:** Base muy ancha y cúspide afilada.
-   * **Régimen:** Elevada natalidad y alta mortalidad infantil/general.
-   * **Perfil:** Población joven de rápido crecimiento (propia de países en desarrollo).
-2. **Estacionaria (Forma de Campana):**
-   * **Características:** Base moderada y bordes rectos escalonados.
-   * **Régimen:** Natalidad y mortalidad controladas y estables.
-   * **Perfil:** Reemplazo generacional garantizado sin envejecimiento extremo.
-3. **Regresiva (Forma de Bulbo, Urna o Constrictiva):**
-   * **Características:** Base estrecha (menor anchura que el tronco central) y cúspide ensanchada.
-   * **Régimen:** Natalidad en declive continuo y elevada esperanza de vida.
-   * **Perfil:** Población envejecida con crecimiento natural nulo o negativo (propia de España, Japón, Italia).
+### Relación Matemática Fundamental en la Población Estacionaria
+
+En una población estacionaria, la Tasa Bruta de Natalidad ($n = N / P$) es exactamente igual a la Tasa Bruta de Mortalidad ($m = D / P$), y ambas equivalen a la inversa de la **esperanza de vida al nacer** ($e_0$):
+
+$$e_0 = \frac{1}{n} = \frac{1}{m}$$
+
+$$P = N \cdot e_0$$
+
+Donde:
+* $P$: Población total de la comunidad estacionaria.
+* $N$: Nacimientos anuales constantes.
+* $e_0$: Esperanza de vida al nacer derivada de la tabla de mortalidad.
 
 ---
 
-### 2.3. Huellas Históricas en la Pirámide de la Población Española
+## 7. Cuadro Comparativo de Síntesis
 
-El perfil de la pirámide de España refleja los acontecimientos demográficos y bélicos del siglo XX y XXI:
-* **Muesca de la Guerra Civil (1936-1939):** Pérdida de efectivos en las generaciones nacidas entre $1911$ y $1921$ (fallecimientos en el frente, mayoritariamente masculinos) y una brusca **subnatalidad** entre $1937$ y $1942$ (con un hueco crítico en la generación de $1940$).
-* **Abultamiento del Baby-Boom (1958-1977):** Etapa de intensa natalidad que constituye el abultamiento central de la pirámide actual (edades comprendidas entre $45$ y $65$ años).
-* **Estreachamiento de la Base (1978 en adelante):** Caída libre del Índice Sintético de Fecundidad hasta niveles de $1{,}15$-$1{,}30$ hijos por mujer.
-* **Repunte de 2008 y Crisis:** Ligero aumento de la natalidad impulsado por la inmigración previa a $2008$, seguido de una posterior contracción.
-
----
-
-## 3. Crecimiento Demográfico y Ecuación Compensadora
-
-### 3.1. Ecuación Compensadora Fundamental
-
-El crecimiento total de una población en un intervalo $[0, t]$ responde a la interacción de los flujos biológicos y migratorios:
-
-$$P_t = P_0 + \underbrace{(N - D)}_{\text{Saldo Vegetativo } (S_v)} + \underbrace{(I - E)}_{\text{Saldo Migratorio } (S_m)}$$
-
-$$\text{Crecimiento Total Absoluto: } \qquad \Delta P = P_t - P_0 = S_v + S_m$$
+| Criterio | Población Estable | Población Estacionaria |
+| :--- | :--- | :--- |
+| **Crecimiento Natural ($r$)** | Tasa constante ($r \neq 0$, positiva o negativa). | Tasa estrictamente nula ($r = 0$). |
+| **Balance de Vitalidad** | Nacimientos y defunciones varían a la misma tasa $r$. | Nacimientos iguales a defunciones ($N = D$). |
+| **Volumen de Población ($P$)** | Cambia a tasa constante $r$. | Invariable en el tiempo. |
+| **Estructura por Edad** | Invariable en el tiempo. | Invariable en el tiempo. |
+| **Relación con la Tabla de Vida** | Regulada por ley de mortalidad y tasa $r$. | Coincide exactamente con la función $L_x$ y $e_0 = 1 / n$. |
 
 ---
 
-### 3.2. Tasas e Indicadores de Crecimiento
-
-#### A) Tasa de Crecimiento Natural o Vegetativo ($TCN$)
-Diferencia entre la Tasa Bruta de Natalidad ($TBN$) y la Tasa Bruta de Mortalidad ($TBM$), expresada en tanto por ciento o por mil:
-
-$$TCN = TBN - TBM = \frac{N - D}{\bar{P}} \cdot 1000$$
-
-#### B) Ratio de Reemplazo Natural (Coeficiente de Vitalidad de Pearl)
-Relación entre nacimientos y defunciones ocurridos en un año:
-
-$$RND_t = \frac{N_t}{D_t} \cdot 1000$$
-
-Si $RND_t > 1000$, los nacimientos superan a las defunciones ($S_v > 0$).
-
-#### C) Modelos Matemáticos de Crecimiento Poblacional
-
-| Modelo de Crecimiento | Ecuación de Evolución | Fórmula de la Tasa de Crecimiento ($r$) | Hipótesis del Modelo |
-| :--- | :--- | :--- | :--- |
-| **Aritmético** | $P_t = P_0 \cdot (1 + r \cdot t)$ | $r_{arit} = \frac{P_t - P_0}{P_0 \cdot t}$ | Crecimiento constante en volumen absoluto por unidad de tiempo. |
-| **Geométrico** | $P_t = P_0 \cdot (1 + r)^t$ | $r_{geom} = \left(\frac{P_t}{P_0}\right)^{\frac{1}{t}} - 1$ | Crecimiento discreto acumulativo por intervalos anuales. |
-| **Exponencial (Continuo)** | $P_t = P_0 \cdot e^{r \cdot t}$ | $r_{exp} = \frac{\ln\left(\frac{P_t}{P_0}\right)}{t}$ | Crecimiento continuo instantáneo (modelo estándar en demografía). |
-
----
-
-## 4. El Envejecimiento Demográfico
-
-El **envejecimiento poblacional** es el proceso de transformación estructural caracterizado por el aumento sostenido del peso relativo de las personas de edad avanzada ($65$ y más años) y la reducción del peso de los jóvenes.
-
-### 4.1. Doble Dimensión Mecánica del Envejecimiento
-
-```
-                            ┌────────────────────────────────────────┐
-                            │      MECANISMOS DE ENVEJECIMIENTO      │
-                            └───────────────────┬────────────────────┘
-                                                │
-                      ┌─────────────────────────┴─────────────────────────┐
-                      ▼                                                   ▼
-         ┌─────────────────────────┐                         ┌─────────────────────────┐
-         │ ENVEJECIMIENTO POR LA   │                         │ ENVEJECIMIENTO POR LA   │
-         │          BASE           │                         │         CÚSPIDE         │
-         └────────────┬────────────┘                         └────────────┬────────────┘
-                      │                                                   │
-     ┌────────────────┴────────────────┐                 ┌────────────────┴────────────────┐
-     ▼                                 ▼                 ▼                                 ▼
-┌───────────┐                     ┌───────────┐     ┌───────────┐                     ┌───────────┐
-│ DESCENSO  │                     │EMIGRACIÓN │     │ AUMENTO  │                     │ CAÍDA DE  │
-│ DE LA     │                     │ DE JÓVENES│     │ESPERANZA  │                     │MORTALIDAD │
-│FECUNDIDAD │                     │  (RURAL)  │     │ DE VIDA   │                     │ AVANZADA  │
-└───────────┘                     └───────────┘     └───────────┘                     └───────────┘
-```
-
-1. **Envejecimiento por la Base:** Se produce por la contracción de la natalidad (reducción del número de nacimientos que ingresan en la base de la pirámide). Genera un incremento porcentual reactivo de las cohorte maduras y mayores.
-2. **Envejecimiento por la Cúspide:** Se origina por la ganancia sostenida en la esperanza de vida en edades avanzadas (reducción de la mortalidad de adultos mayores). Aumenta los efectivos absolutos en el tramo de $80$ y más años (envejecimiento del propio envejecimiento).
-
----
-
-## 5. Poblaciones Teóricas: Población Estable y Población Estacionaria
-
-La demografía matemática utiliza modelos teóricos de población para aislar los efectos de la mortalidad y la fecundidad sobre la estructura por edad.
-
-### 5.1. Población Estable (Modelo de Alfred Lotka)
-
-* **Definición:** Población hipotética cerrada a las migraciones ($I = E = 0$) sometida indefinidamente a **pautas constantes por edad de mortalidad** ($m_x$) y **fecundidad** ($f_x$).
-* **Propiedades Matemáticas Fundamentales:**
-  1. **Estructura por edad invariable:** Independientemente de la estructura inicial de partida, la población alcanza una distribución por edad fija y constante en el tiempo (Propiedad de Ergodicidad Demográfica).
-  2. **Tasa intrínseca de crecimiento constante ($r$):** La población crece o decrece a una tasa intrínseca constante $r$, definida por la ecuación característica de Lotka:
-
-$$\int_{\alpha}^{\beta} e^{-r \cdot x} \cdot l_x \cdot f_x \, dx = 1$$
-
-Donde $\alpha$ y $\beta$ son los límites de la edad fértil, $l_x$ es la función de supervivencia y $f_x$ las tasas específicas de fecundidad.
-
----
-
-### 5.2. Población Estacionaria
-
-* **Definición:** Caso particular y límite de la **población estable** donde la tasa intrínseca de crecimiento natural es nula ($r = 0$).
-* **Condiciones de Equilibrio:**
-  * Número de nacimientos constante e igual al número de defunciones anuales ($N = D$).
-  * Coincide exactamente con la población teórica de la **Tabla de Mortalidad** ($P_x = L_x$).
-* **Relación Biométrica Fundamental:**
-  En una población estacionaria, la Tasa Bruta de Natalidad ($TBN$) y la Tasa Bruta de Mortalidad ($TBM$) son idénticas e iguales a la **inversa de la Esperanza de Vida al Nacer ($e_0$)**:
-
-$$TBN = TBM = \frac{1}{e_0}$$
-
----
-
-## 6. Cuadro Comparativo de Síntesis
-
-| Criterio | Población Estable | Población Estacionaria | Población Real (España 2021) |
-| :--- | :--- | :--- | :--- |
-| **Saldo Migratorio ($S_m$)** | $0$ (Población cerrada) | $0$ (Población cerrada) | $S_m \neq 0$ (Abierta) |
-| **Tasas Específicas ($m_x, f_x$)** | Constantes en el tiempo | Constantes en el tiempo | Variables dinámicamente |
-| **Tasa de Crecimiento ($r$)** | Constante ($r \neq 0$) | Nula ($r = 0$) | Variable ($\Delta P = S_v + S_m$) |
-| **Estructura por Edad** | Invariable en el tiempo | Invariable ($P_x = L_x$) | Cambiante (Envejecida) |
-| **Relación Natalidad / Esperanza Vida** | $TBN \neq TBM$ | $TBN = TBM = \frac{1}{e_0}$ | $TBN \neq TBM \neq \frac{1}{e_0}$ |
-
----
-
-💡 **Siguiente paso recomendado:** Con este tema de Estructura y Crecimiento completado y publicado en tu panel de Studio, ¿te gustaría que pasemos a elaborar el resumen Markdown del **Tema 1 (Análisis transversal y longitudinal, Diagrama de Lexis y cohortes)**?
+> **Regla de Examen Final:** Recuerda las tres fórmulas indispensables del Tema 5:
+> 1. **Ecuación Compensadora:** $P_{t+1} = P_t + (N_t - D_t) + (I_t - E_t)$
+> 2. **Edad Media:** $EMedia_t = \frac{\sum (x + 0{,}5) \cdot P_{x,t}}{\sum P_{x,t}}$
+> 3. **Población Estacionaria:** $P = N \cdot e_0 \iff e_0 = \frac{1}{n} = \frac{1}{m}$
